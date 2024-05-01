@@ -113,12 +113,12 @@ jobs:
           header: container-size-diff
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@ab5d7b5f48981941c4c5d6bf33aeb98fe3bae38c # v0.15.10
+      - uses: anchore/sbom-action@7ccf588e3cf3cc2611714c2eeae48550fbc17552 # v0.15.11
         if: steps.build-and-push-base.outputs.digest != '' && github.event_name != 'merge_group'
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}@${{ steps.build-and-push-base.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/dependency-review-action@5bbc3ba658137598168acb2ab73b21c432dd411b # v4.2.5
+      - uses: actions/dependency-review-action@0c155c5e8556a497adf53f2c18edabf945ed8e70 # v4.3.2
         if: github.event_name == 'pull_request'
         with:
           comment-summary-in-pr: on-failure
