@@ -15,23 +15,41 @@ concurrency:
 jobs:
   prime-docker-cache:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: ["cpp", "rust"]
     steps:
-      - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
-      - uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
-      - uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+      - uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+      - uses: actions/cache@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2 # v4.1.0
+        if: matrix.flavor == 'cpp'
+        id: buildkit-cache
         with:
-          file: .devcontainer/Dockerfile
+          path: root-ccache
+          key: buildkit-cache-${{ github.run_id }}
+          restore-keys: |
+            buildkit-cache
+      - uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de # v3.1.2
+        if: matrix.flavor == 'cpp'
+        with:
+          cache-map: |
+            {
+              "root-ccache": "/root/.ccache"
+            }
+          skip-extraction: ${{ steps.buildkit-cache.outputs.cache-hit }}
+      - uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
+          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}
   prime-xwin-cache:
     runs-on: ubuntu-latest
     steps:
       - run: |
           set -Eeuo pipefail
           mkdir test
-          docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ghcr.io/${{ github.repository }}:latest xwin --accept-license splat --preserve-ms-arch-notation
-      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+          docker run --rm --mount type=bind,src="$(pwd)/test",dst=/ws -w /ws ghcr.io/${{ github.repository }}-cpp:latest xwin --accept-license splat --preserve-ms-arch-notation
+      - uses: actions/cache/save@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2 # v4.1.0
         with:
           path: test/.xwin-cache
-          key: xwin-cache
+          key: xwin-cache-${{ github.run_id }}
