@@ -12,3 +12,5 @@ test-results/
 *.profdata
 *.profraw
 **/playwright/.auth/user.json
+__pycache__/
+*.py[cod]

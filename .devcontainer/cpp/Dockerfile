@@ -22,10 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends jq \
  && rm /tmp/apt-requirements-base.json \
  && rm -rf /var/lib/apt/lists/*
 
-# Include the Cisco Umbrella PKI Root
-RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates
-
 # Install some tools via pip to get more recent versions
 COPY .devcontainer/cpp/requirements.txt /tmp/requirements.txt
 RUN python3 -m pip install --break-system-packages --require-hashes --no-cache-dir -r /tmp/requirements.txt \
@@ -73,12 +69,6 @@ RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VER
 # Install some tools via pip to get more recent versions
 RUN python3 -m pip --no-cache-dir install pre-commit==3.4.0 --break-system-packages
 
-# Setup git branch view in CLI
-RUN echo "parse_git_branch() {" >> /root/.bashrc \
- && echo "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
- && echo "}" >> /root/.bashrc \
- && echo "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc
-
 # Compile and install additional clang tools; often necessary as a binary arm64 build are lacking, or packages are out-of-date
 # Install ccache from source for a recent version
 RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
@@ -103,6 +93,10 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# Include the Cisco Umbrella PKI Root
+RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
+ && update-ca-certificates
+
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
@@ -113,3 +107,9 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
  && cp /etc/skel/.bashrc /root/.bashrc
+
+# Setup git branch view in CLI
+RUN echo "parse_git_branch() {" >> /root/.bashrc \
+ && echo "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
+ && echo "}" >> /root/.bashrc \
+ && echo "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc
