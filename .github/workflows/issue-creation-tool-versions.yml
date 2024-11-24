@@ -51,7 +51,7 @@ jobs:
 
             ## Checklist
 
-            ### amp-devcontainer-cpp
+            ### embedded-devcontainer-cpp
 
             - [ ] The [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchain is up to date and matches with the GCC version
             - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
@@ -61,7 +61,7 @@ jobs:
             - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) is up to date and compatible with the currently installed Clang version
             - [ ] [xwin](https://github.com/Jake-Shadle/xwin) is up to date
 
-            ### amp-devcontainer-rust
+            ### embedded-devcontainer-rust
 
             - [ ] The [rust](https://rust-lang.org/) toolchain is up to date
             - [ ] [rust-binstall](https://github.com/cargo-bins/cargo-binstall/releases) is up to date

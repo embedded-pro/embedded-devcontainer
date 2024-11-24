@@ -1,6 +1,6 @@
 {
   "image": "gabrielfrasantos/embedded-devcontainer:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/amp-devcontainer/.devcontainer/cpp/e2e/workspace",
+  "workspaceFolder": "/workspaces/devcontainer/.devcontainer/cpp/e2e/workspace",
   "customizations": {
     "vscode": {
       "settings": {

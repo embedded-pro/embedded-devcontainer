@@ -17,7 +17,7 @@ jobs:
         flavor: ["cpp", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: ghcr.io/philips-software/amp-devcontainer-${{ matrix.flavor }}:latest
+    container: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}:latest
     permissions:
       contents: write
       pull-requests: write
@@ -37,7 +37,7 @@ jobs:
       - uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
+          branch: feature/embedded-devcontainer-${{ matrix.flavor }}/update-apt-packages
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
@@ -66,7 +66,7 @@ jobs:
       - uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
+          branch: feature/embedded-devcontainer-${{ matrix.flavor }}/update-vscode-extensions
           body: |
             > [!NOTE]
             > Before merging this PR, please conduct a manual test checking basic functionality of the updated plug-ins. There are limited automated tests for the VS Code Extension updates.
