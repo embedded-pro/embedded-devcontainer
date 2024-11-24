@@ -1,42 +1,37 @@
-# amp-devcontainer
+# devcontainer
 
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/philips-software/amp-devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philips-software/amp-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philips-software/amp-devcontainer)
+[![Linting & Formatting](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
 <!-- markdownlint enable -->
 
 ## Overview
 
 This repository contains [devcontainers](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/introduction-to-dev-containers) tailored towards modern, embedded, C++ and Rust development.
 
-## State
-
-This repository is under active development; see [pulse](https://github.com/philips-software/amp-devcontainer/pulse) for more details.
-
 ## Description
 
 ### Image variants
 
-Two devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
+Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/):
 
-- [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
-- [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
+- [devcontainer](https://hub.docker.com/repository/docker/gabrielfrasantos/embedded-devcontainer/general); the C++ container
 
 Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
-A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/philips-software/amp-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/philips-software/amp-devcontainer/releases), or the SBOM attached to the image.
+A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/devcontainer/devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/devcontainer/devcontainer/releases), or the SBOM attached to the image.
 
-#### amp-devcontainer-cpp
+#### devcontainer-cpp
 
-The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
-The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
+The devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
+The devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
 Next to the compilers there is support for code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
 
-#### amp-devcontainer-rust
+#### devcontainer-rust
 
-The amp-devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
-The amp-devcontainer-rust includes support for host- and cross-compilation.
+The devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
+The devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
 
 For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
@@ -47,46 +42,13 @@ Both containers can be used in Visual Studio Code or GitHub Codespaces without a
 
 ## Usage
 
-### Verify image signature
-
-The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/cosign/signing/overview/) using a keyless signing method.
-
-The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
-
-> amp-devcontainer-cpp
-
-```sh
-docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-cpp --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
-```
-
-> amp-devcontainer-rust
-
-```sh
-docker run --rm gcr.io/projectsigstore/cosign verify ghcr.io/philips-software/amp-devcontainer-rust --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/amp-devcontainer
-```
-
-The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
-
-> [!NOTE]
-> While the following examples use the `latest` tag, it is recommended to pin to a specific version. Or better yet, a specific SHA.
-
-### amp-devcontainer-cpp
+### devcontainer-cpp
 
 > .devcontainer/devcontainer.json or .devcontainer.json
 
 ```json
 {
-    "image": "ghcr.io/philips-software/amp-devcontainer-cpp:latest"
-}
-```
-
-### amp-devcontainer-rust
-
-> .devcontainer/devcontainer.json or .devcontainer.json
-
-```json
-{
-    "image": "ghcr.io/philips-software/amp-devcontainer-rust:latest"
+    "image": "gabrielfrasantos/embedded-devcontainer:latest"
 }
 ```
 
@@ -122,11 +84,6 @@ GITHUB_TOTP_SECRET=
 ```
 
 Test can now be run using the Test Explorer. The user interface is available on port 6080 by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
-
-## Reporting vulnerabilities
-
-If you find a vulnerability, please report it to us!
-See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
