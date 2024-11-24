@@ -1,29 +1,3 @@
-# import json
-# import subprocess
-
-# # Define paths
-# dockerfile_path = ".devcontainer/cpp/Dockerfile"
-# metadata_file_path = ".devcontainer/cpp/devcontainer-metadata-vscode.json"
-# image_name = "my_docker_image"  # Replace with your desired image name
-
-# # Read and process metadata
-# with open(metadata_file_path, 'r') as file:
-#     metadata_content = json.load(file)
-
-# metadata_content_str = json.dumps([metadata_content], separators=(',', ':'))
-# metadata_content_str = metadata_content_str.replace(',"', ', "')
-
-# # Build Docker image with label and name
-# subprocess.run([
-#     'docker', 'build', '-f', dockerfile_path,
-#     '--label', f'devcontainer.metadata={metadata_content_str}',
-#     '-t', image_name, '.'
-# ])
-
-# # Inspect the Docker image to see the metadata
-# result = subprocess.run(['docker', 'inspect', image_name], capture_output=True, text=True)
-# print(result.stdout)
-
 import json
 import os
 import subprocess

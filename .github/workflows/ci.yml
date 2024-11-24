@@ -30,8 +30,8 @@ jobs:
         with:
           file: .devcontainer/${{ matrix.flavor }}/Dockerfile
           load: true
-          tags: ${{ github.repository }}-${{ matrix.flavor }}:test
-          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/embedded-${{ github.repository }}-${{ matrix.flavor }}:test
+          cache-from: type=gha,scope=${{ vars.DOCKERHUB_USERNAME }}/embedded-${{ github.repository }}-${{ matrix.flavor }}
       - uses: actions/cache/restore@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2 # v4.1.0
         if: matrix.flavor == 'cpp'
         with:
@@ -42,7 +42,7 @@ jobs:
       - name: Run Tests
         run: |
           set -Eeuo pipefail
-          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavor }}/test",dst=/ws -w /ws ${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit testsuite.bats | tee test-report-${{ matrix.flavor }}.xml
+          docker run --rm --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src="${{ github.workspace }}/.devcontainer/${{ matrix.flavor }}/test",dst=/ws -w /ws ${{ vars.DOCKERHUB_USERNAME }}/embedded-${{ github.repository }}-${{ matrix.flavor }}:test bats --formatter junit testsuite.bats | tee test-report-${{ matrix.flavor }}.xml
       - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         if: always()
         with:
