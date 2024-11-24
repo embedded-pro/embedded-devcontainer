@@ -109,7 +109,7 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Setup git branch view in CLI
-RUN echo "parse_git_branch() {" >> /root/.bashrc \
- && echo "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
- && echo "}" >> /root/.bashrc \
- && echo "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc
+RUN printf "parse_git_branch() {\n" >> /root/.bashrc \
+ && printf "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \\(.*\\)/(\\1)/'\n" >> /root/.bashrc \
+ && printf "}\n" >> /root/.bashrc \
+ && printf "export PS1='\\u@\\h [\\033[32m]\\w - \\$(parse_git_branch)[\\033[00m] $ '\n" >> /root/.bashrc
