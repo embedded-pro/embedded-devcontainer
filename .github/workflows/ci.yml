@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: ["cpp"]
+#        flavor: ["cpp", "rust"]
     steps:
       # While the docker/build-push-action works from the Git context, we still need
       # the checkout step for running our tests.

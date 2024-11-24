@@ -28,7 +28,8 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        flavor: ["cpp", "rust"]
+        flavor: ["cpp"]
+#        flavor: ["cpp", "rust"]
     steps:
       - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v9.0.1
         with:
