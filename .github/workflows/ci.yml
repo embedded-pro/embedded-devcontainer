@@ -51,6 +51,8 @@ jobs:
   publish-test:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
+      issues: read
       checks: write
       pull-requests: write
     needs: build-test
