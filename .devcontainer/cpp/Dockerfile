@@ -69,30 +69,6 @@ RUN wget -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VER
 # Install some tools via pip to get more recent versions
 RUN python3 -m pip --no-cache-dir install pre-commit==3.4.0 --break-system-packages
 
-# Compile and install additional clang tools; often necessary as a binary arm64 build are lacking, or packages are out-of-date
-# Install ccache from source for a recent version
-RUN wget -qO - https://github.com/ccache/ccache/archive/refs/tags/v${CCACHE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=Off -DENABLE_DOCUMENTATION=Off -S /tmp/ccache-${CCACHE_VERSION} -B /tmp/ccache-${CCACHE_VERSION}/build \
- && cmake --build /tmp/ccache-${CCACHE_VERSION}/build --target install \
- && rm -rf /tmp/ccache-${CCACHE_VERSION}
-
-# Install include-what-you-use (iwyu) and Mull from source
-# hadolint ignore=DL3008
-RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
- && wget -qO - https://github.com/include-what-you-use/include-what-you-use/archive/refs/tags/${INCLUDE_WHAT_YOU_USE_VERSION}.tar.gz | tar xz -C /tmp \
- && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} -B /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build \
- && cmake --build /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION}/build --target install \
- && rm -rf /tmp/include-what-you-use-${INCLUDE_WHAT_YOU_USE_VERSION} \
- && git -C /tmp clone --recurse-submodules -b ${MULL_VERSION} https://github.com/mull-project/mull.git \
- && CC=clang CXX=clang++ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -S /tmp/mull -B /tmp/mull/build \
- && cmake --build /tmp/mull/build --target install \
- && rm -rf /tmp/mull \
- && apt-get purge -y libclang-${CLANG_VERSION}-dev llvm-${CLANG_VERSION}-dev libsqlite3-dev \
- && apt-get autoremove -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
 # Include the Cisco Umbrella PKI Root
 RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
  && update-ca-certificates
