@@ -102,10 +102,10 @@ RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https:/
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-13 20 \
  && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-13 10 \
- && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/local/bin/mull-runner-${CLANG_VERSION} 10 \
  && update-alternatives --install /usr/lib/mull-ir-frontend mull-ir-frontend /usr/local/lib/mull-ir-frontend-${CLANG_VERSION} 10 \
+ && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Setup git branch view in CLI
