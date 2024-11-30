@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         flavor: ["cpp", "rust"]
@@ -49,7 +49,7 @@ jobs:
           name: test-results-${{ matrix.flavor }}
           path: test-report-*.xml
   publish-test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       issues: read
