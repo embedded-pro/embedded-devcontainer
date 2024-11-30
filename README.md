@@ -1,7 +1,7 @@
 # devcontainer
 
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
+[![Linting & Formatting](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
 <!-- markdownlint enable -->
 
 ## Overview
@@ -18,7 +18,7 @@ Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/
 
 Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
-A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/devcontainer/devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/devcontainer/devcontainer/releases), or the SBOM attached to the image.
+A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/devcontainer/releases), or the SBOM attached to the image.
 
 #### devcontainer-cpp
 
