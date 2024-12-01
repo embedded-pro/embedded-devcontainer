@@ -14,7 +14,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 
 Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/):
 
-- [devcontainer](https://hub.docker.com/repository/docker/gabrielfrasantos/embedded-devcontainer/general); the C++ container
+- [devcontainer](https://hub.docker.com/repository/docker/gabrielfrasantos/embedded-devcontainer-cpp/general); the C++ container
 
 Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
@@ -48,7 +48,7 @@ Both containers can be used in Visual Studio Code or GitHub Codespaces without a
 
 ```json
 {
-    "image": "gabrielfrasantos/embedded-devcontainer:latest"
+    "image": "gabrielfrasantos/embedded-devcontainer-cpp:latest"
 }
 ```
 

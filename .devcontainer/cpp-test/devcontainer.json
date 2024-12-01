@@ -1,5 +1,5 @@
 {
-  "image": "gabrielfrasantos/embedded-devcontainer:${localEnv:IMAGE_VERSION}",
+  "image": "gabrielfrasantos/embedded-devcontainer-cpp:${localEnv:IMAGE_VERSION}",
   "workspaceFolder": "/workspaces/devcontainer/.devcontainer/cpp/e2e/workspace",
   "customizations": {
     "vscode": {
