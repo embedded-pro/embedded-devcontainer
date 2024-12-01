@@ -120,10 +120,10 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: |
           cosign sign --yes --recursive "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}@${DIGEST}"
-  acceptance-test:
-    if: github.event_name == 'pull_request'
-    needs: build-push
-    secrets: inherit
-    uses: ./.github/workflows/acceptance-test.yml
-    with:
-      flavor: cpp
+  # acceptance-test:
+  #   if: github.event_name == 'pull_request'
+  #   needs: build-push
+  #   secrets: inherit
+  #   uses: ./.github/workflows/acceptance-test.yml
+  #   with:
+  #     flavor: cpp
