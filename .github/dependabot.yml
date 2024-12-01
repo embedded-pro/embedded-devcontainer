@@ -5,7 +5,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
       github-actions:
         update-types:
@@ -18,15 +18,15 @@ updates:
       - .devcontainer/cpp
       - .devcontainer/rust
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: devcontainers
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
       npm:
         update-types:
@@ -37,4 +37,4 @@ updates:
   - package-ecosystem: pip
     directory: .devcontainer
     schedule:
-      interval: weekly
+      interval: monthly
