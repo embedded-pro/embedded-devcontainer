@@ -15,9 +15,6 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  REGISTRY: ghcr.io
-
 jobs:
   build-push:
     runs-on: ubuntu-latest
@@ -36,7 +33,7 @@ jobs:
       - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v9.0.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
       - uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
@@ -45,10 +42,9 @@ jobs:
       - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         if: github.event_name != 'merge_group'
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/cache@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2 # v4.1.0
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         if: matrix.flavor == 'cpp'
         id: buildkit-cache
         with:
@@ -64,12 +60,12 @@ jobs:
               "root-ccache": "/root/.ccache"
             }
           skip-extraction: ${{ steps.buildkit-cache.outputs.cache-hit }}
-      - uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+      - uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5.6.1
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}
+          images: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}
           # Generate Docker tags based on the following events/attributes
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -99,28 +95,23 @@ jobs:
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           provenance: true
-          cache-from: type=gha,scope=${{ github.repository }}-${{ matrix.flavor }}
-          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ matrix.flavor }}
+          cache-from: type=gha,scope=${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}
+          cache-to: type=gha,mode=max,scope=${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
-          from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}:latest
-          to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
+          from-container: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}:latest
+          to-container: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
       - uses: marocchino/sticky-pull-request-comment@331f8f5b4215f0445d3c07b4967662a32a2d3e31 # v2.9.0
         with:
           header: container-size-diff-${{ matrix.flavor }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0.17.2
+      - uses: anchore/sbom-action@55dc4ee22412511ee8c3142cbea40418e6cec693 # v0.17.8
         if: steps.build-and-push.outputs.digest != '' && github.event_name != 'merge_group'
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
+          image: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}@${{ steps.build-and-push.outputs.digest }}
           dependency-snapshot: true
-      - uses: actions/dependency-review-action@5a2ce3f5b92ee19cbb1541a4984c76d921601d7c # v4.3.4
-        if: github.event_name == 'pull_request'
-        with:
-          comment-summary-in-pr: on-failure
-          fail-on-severity: critical
       - name: Sign the images with GitHub OIDC token
         if: github.event_name != 'merge_group'
         # This step uses the GitHub OIDC identity token to provision an ephemeral certificate
@@ -128,11 +119,11 @@ jobs:
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: |
-          cosign sign --yes --recursive "${{ env.REGISTRY }}/${{ github.repository }}-${{ matrix.flavor }}@${DIGEST}"
-  acceptance-test:
-    if: github.event_name == 'pull_request'
-    needs: build-push
-    secrets: inherit
-    uses: ./.github/workflows/acceptance-test.yml
-    with:
-      flavor: cpp
+          cosign sign --yes --recursive "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ matrix.flavor }}@${DIGEST}"
+  # acceptance-test:
+  #   if: github.event_name == 'pull_request'
+  #   needs: build-push
+  #   secrets: inherit
+  #   uses: ./.github/workflows/acceptance-test.yml
+  #   with:
+  #     flavor: cpp

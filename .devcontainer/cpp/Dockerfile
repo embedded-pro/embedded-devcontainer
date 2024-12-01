@@ -1,4 +1,4 @@
-FROM ubuntu:24.04@sha256:b359f1067efa76f37863778f7b6d0e8d911e3ee8efa807ad01fbf5dc1ef9006b
+FROM ubuntu:24.04@sha256:278628f08d4979fb9af9ead44277dbc9c92c2465922310916ad0c46ec9999295
 
 ARG BATS_VERSION=1.11.0
 ARG CCACHE_VERSION=4.10.1
@@ -109,7 +109,7 @@ RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 20 \
  && cp /etc/skel/.bashrc /root/.bashrc
 
 # Setup git branch view in CLI
-RUN echo "parse_git_branch() {" >> /root/.bashrc \
- && echo "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
- && echo "}" >> /root/.bashrc \
- && echo "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc
+RUN printf '%s\n' "parse_git_branch() {" >> /root/.bashrc \
+ && printf '%s\n' "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
+ && printf '%s\n' "}" >> /root/.bashrc \
+ && printf '%s\n' "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc

@@ -48,11 +48,6 @@ There are many ways to contribute, from writing tutorials, improving the documen
 
 If you find a bug in the source code or a mistake in the documentation, you can help us by [submitting an issue](#submitting-an-issue) to our GitHub Repository.
 
-### Found a security vulnerability?
-
-If you discover a vulnerability in our software, please refer to the [security policy](./SECURITY.md) and report it appropriately.
-Do not submit an issue, unless asked to.
-
 ### Missing a Feature?
 
 You can request a new feature by [submitting an issue](#submitting-an-issue) to our GitHub Repository. If you would like to implement a new feature, please consider the size of the change in order to determine the right steps to proceed:

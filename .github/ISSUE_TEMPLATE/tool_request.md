@@ -12,7 +12,7 @@ A clear and concise description of the tool you would want to include. Ex. I wan
 
 **What is the use-case for the inclusion**
 Describe why the proposed tool should be added. Please note that project specific tools
-should be added to a derived container instead of adding them to amp-devcontainer.
+should be added to a derived container instead of adding them to embedded-devcontainer.
 
 **What is the estimated size impact**
 Describe what the estimated (or absolute) size impact of the inclusion would be on the final

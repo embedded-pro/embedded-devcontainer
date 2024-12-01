@@ -20,7 +20,7 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
-      "package-name": "amp-devcontainer",
+      "package-name": "embedded-devcontainer",
       "release-type": "simple"
     }
   },
