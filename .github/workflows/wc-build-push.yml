@@ -58,6 +58,7 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
+          context: .
           file: .devcontainer/${{ inputs.flavor }}/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
