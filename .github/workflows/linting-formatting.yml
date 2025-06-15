@@ -21,11 +21,6 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-      - name: Configure Git
-        run: |
-          git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git config --global --add safe.directory '*'
       - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
         with:
           egress-policy: audit
@@ -33,6 +28,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
       # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
       # we are interested in.
       - uses: oxsecurity/megalinter/flavors/dotnet@5a91fb06c83d0e69fbd23756d47438aa723b4a5a # v8.7.0
