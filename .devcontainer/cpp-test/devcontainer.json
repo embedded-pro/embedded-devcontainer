@@ -1,10 +1,12 @@
 {
   "image": "gabrielfrasantos/embedded-devcontainer:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/devcontainer/.devcontainer/cpp/e2e/workspace",
+  "workspaceFolder": "/workspaces/devcontainer/test/cpp/workspace",
   "customizations": {
     "vscode": {
       "settings": {
-        "cmake.automaticReconfigure": false
+        "cmake.automaticReconfigure": false,
+        "cmake.configureOnOpen": false,
+        "cmake.enableAutomaticKitScan": false
       }
     }
   }
