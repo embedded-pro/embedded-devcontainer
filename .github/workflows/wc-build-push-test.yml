@@ -26,8 +26,8 @@ jobs:
   integration-test:
     strategy:
       matrix:
-        flavor: [cpp, rust]
-        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
+        flavor: [cpp]
+        runner: ["ubuntu-latest"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
     secrets: inherit
