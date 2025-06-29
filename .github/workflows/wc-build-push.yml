@@ -159,12 +159,12 @@ jobs:
         with:
           comment-summary-in-pr: on-failure
           fail-on-severity: critical
-      - uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
-        with:
-          subject-name: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
-          subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
-          show-summary: false
-          push-to-registry: true
+      # - uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
+      #   with:
+      #     subject-name: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+      #     subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
+      #     show-summary: false
+      #     push-to-registry: true
       # - name: Verify attestation
       #   env:
       #     GH_TOKEN: ${{ github.token }}
