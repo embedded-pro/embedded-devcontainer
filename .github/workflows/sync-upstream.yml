@@ -1,0 +1,103 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 3 * * 0' # Runs every Sunday at 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      upstream_repo:
+        description: 'Upstream repository (owner/repo)'
+        required: true
+        default: 'philips-software/amp-devcontainer'
+        type: string
+      upstream_branch:
+        description: 'Upstream branch to sync from'
+        required: false
+        default: 'main'
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine upstream repository
+        id: upstream
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "repo=${{ github.event.inputs.upstream_repo }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.event.inputs.upstream_branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "repo=embedded-pro/devcontainer" >> $GITHUB_OUTPUT
+            echo "branch=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/${{ steps.upstream.outputs.repo }}.git
+
+      - name: Fetch upstream changes
+        run: git fetch upstream ${{ steps.upstream.outputs.branch }}
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git checkout -B sync-upstream-${{ steps.upstream.outputs.branch }}
+          
+          # Try to merge upstream changes
+          if git merge upstream/${{ steps.upstream.outputs.branch }} --no-edit; then
+            # Check if there are actually any new commits
+            if [ "$(git rev-list HEAD ^origin/main --count)" -gt 0 ]; then
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              echo "Changes detected from upstream"
+            else
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "No new changes from upstream"
+            fi
+          else
+            echo "Merge conflicts detected, manual intervention required"
+            git merge --abort
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push sync branch
+        if: steps.changes.outputs.has_changes == 'true'
+        run: git push origin sync-upstream-${{ steps.upstream.outputs.branch }} --force
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync-upstream-${{ steps.upstream.outputs.branch }}
+          title: 'Sync with upstream ${{ steps.upstream.outputs.repo }}:${{ steps.upstream.outputs.branch }}'
+          body: |
+            🔄 **Automated Sync with Upstream**
+            
+            This PR synchronizes changes from the upstream repository:
+            - **Repository**: `${{ steps.upstream.outputs.repo }}`
+            - **Branch**: `${{ steps.upstream.outputs.branch }}`
+            - **Triggered**: ${{ github.event_name == 'workflow_dispatch' && 'Manually' || 'Scheduled' }}
+            
+            Please review the changes before merging.
+            
+            ---
+            *This PR was automatically created by the sync-upstream workflow.*
+          labels: |
+            sync
+            automated
+            upstream
+          draft: false
+
+      - name: No changes summary
+        if: steps.changes.outputs.has_changes == 'false'
+        run: echo "No new changes to sync from upstream repository."
