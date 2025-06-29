@@ -1,0 +1,4 @@
+{
+  "image": "gabrielfrasantos/devcontainer-rust:${localEnv:IMAGE_VERSION}",
+  "workspaceFolder": "/workspaces/devcontainer/test/rust/workspace"
+}
