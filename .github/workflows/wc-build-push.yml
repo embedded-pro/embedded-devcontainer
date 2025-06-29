@@ -44,7 +44,7 @@ jobs:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          images: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '[.]' .devcontainer/${{ inputs.flavor }}/devcontainer-metadata-vscode.json | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
@@ -61,15 +61,15 @@ jobs:
           context: .
           file: .devcontainer/${{ inputs.flavor }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
           annotations: ${{ steps.metadata.outputs.annotations }}
           sbom: true
           outputs: type=image,push-by-digest=true,name-canonical=true
-          cache-to: type=gha,mode=max,scope=${{ github.repository }}-${{ inputs.flavor }}-${{ matrix.runner }}
-          cache-from: type=gha,scope=${{ github.repository }}-${{ inputs.flavor }}-${{ matrix.runner }}
+          cache-from: type=gha,scope=${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+          cache-to: type=gha,mode=max,scope=${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
@@ -117,7 +117,7 @@ jobs:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          images: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
           # Generate Docker tags based on the following events/attributes
           tags: |
             type=edge
@@ -133,18 +133,18 @@ jobs:
           # shellcheck disable=SC2046
           docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(printf '${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)
+            $(printf '${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
+          output=$(docker buildx imagetools inspect ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
-          from-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:edge
-          to-container: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          from-container: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:edge
+          to-container: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
       - uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db # v2.9.2
         with:
           header: container-size-diff-${{ inputs.flavor }}
@@ -152,7 +152,7 @@ jobs:
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@e11c554f704a0b820cbf8c51673f6945e0731532 # v0.20.0
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
       - uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
         if: github.event_name == 'pull_request'
@@ -161,12 +161,12 @@ jobs:
           fail-on-severity: critical
       - uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}
+          subject-name: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
           push-to-registry: true
-      - name: Verify attestation
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh attestation verify --repo ${{ github.repository }} oci://${{ env.REGISTRY }}/${{ github.repository }}-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
+      # - name: Verify attestation
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
+      #   run: |
+      #     gh attestation verify --repo ${{ github.repository }} oci://${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
