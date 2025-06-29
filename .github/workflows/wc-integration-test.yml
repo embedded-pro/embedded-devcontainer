@@ -29,7 +29,7 @@ jobs:
         with:
           path: ${{ runner.temp }}
           pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf 'ghcr.io/${{ github.repository }}-${{ inputs.flavor }}@sha256:%s ' *)" >> "$GITHUB_OUTPUT"
+      - run: echo "container=$(printf '${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@sha256:%s ' *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
         id: set-container
   run-test:
