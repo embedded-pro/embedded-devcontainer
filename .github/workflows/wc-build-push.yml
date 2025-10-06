@@ -7,6 +7,11 @@ on:
       flavor:
         required: true
         type: string
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: true
+      PRIVATE_REPO_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -35,16 +40,28 @@ jobs:
         with:
           persist-credentials: false
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+<<<<<<< Updated upstream
+=======
+      - name: Debug secret availability (build-push job)
+        run: |
+          echo "DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}"
+          echo "DOCKERHUB_TOKEN available: ${{ secrets.DOCKERHUB_TOKEN != '' }}"
+          echo "GITHUB_TOKEN available: ${{ secrets.GITHUB_TOKEN != '' }}"
+          echo "Running from PR: ${{ github.event_name == 'pull_request' }}"
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+>>>>>>> Stashed changes
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
-          images: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+          images: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '[.]' ".devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
@@ -60,7 +77,7 @@ jobs:
         with:
           file: .devcontainer/${{ inputs.flavor }}/Dockerfile
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+          tags: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
@@ -108,17 +125,29 @@ jobs:
           pattern: digests-${{ inputs.flavor }}-*
           merge-multiple: true
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+<<<<<<< Updated upstream
+=======
+      - name: Debug secret availability (merge-image job)
+        run: |
+          echo "DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}"
+          echo "DOCKERHUB_TOKEN available: ${{ secrets.DOCKERHUB_TOKEN != '' }}"
+          echo "GITHUB_TOKEN available: ${{ secrets.GITHUB_TOKEN != '' }}"
+          echo "Running from PR: ${{ github.event_name == 'pull_request' }}"
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+>>>>>>> Stashed changes
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
-          images: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+          images: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
           # Generate Docker tags based on the following events/attributes.
           # To prevent unnecessary image builds we simulate the `type=edge` tag
           # with `type=raw,value=edge,enable=...` which only enables the tag
@@ -137,12 +166,12 @@ jobs:
           # shellcheck disable=SC2046
           docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(printf '${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@sha256:%s ' *)
+            $(printf 'ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}@sha256:%s ' *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
+          output=$(docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
           CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
@@ -153,8 +182,8 @@ jobs:
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
-          FROM_CONTAINER: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:edge
-          TO_CONTAINER: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          FROM_CONTAINER: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:edge
+          TO_CONTAINER: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: container-diff-${{ inputs.flavor }}
@@ -163,8 +192,8 @@ jobs:
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
-          from-container:  ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:edge
-          to-container: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          from-container: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:edge
+          to-container: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
       - uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
           header: container-size-diff-${{ inputs.flavor }}
@@ -172,7 +201,7 @@ jobs:
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
         with:
-          image: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
       - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
