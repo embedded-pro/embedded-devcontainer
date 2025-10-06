@@ -42,15 +42,15 @@ jobs:
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         env:
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         id: metadata
         with:
-          images: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
+          images: |
+            ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
       # Generate image LABEL for devcontainer.metadata
       # the sed expression is a workaround for quotes being eaten in arrays (e.g. ["x", "y", "z"] -> ["x",y,"z"])
       - run: echo "metadata=$(jq -cj '[.]' ".devcontainer/${CONTAINER_FLAVOR}/devcontainer-metadata-vscode.json" | sed 's/,"/, "/g')" >> "$GITHUB_OUTPUT"
@@ -66,7 +66,8 @@ jobs:
         with:
           file: .devcontainer/${{ inputs.flavor }}/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
+          tags: |
+            ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
           labels: |
             ${{ steps.metadata.outputs.labels }}
             devcontainer.metadata=${{ steps.devcontainer-metadata.outputs.metadata }}
@@ -116,16 +117,16 @@ jobs:
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         id: metadata
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
           DOCKER_METADATA_SET_OUTPUT_ENV: false
         with:
-          images: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}
+          images: |
+            ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
           # Generate Docker tags based on the following events/attributes.
           # To prevent unnecessary image builds we simulate the `type=edge` tag
           # with `type=raw,value=edge,enable=...` which only enables the tag
@@ -142,14 +143,24 @@ jobs:
         run: |
           set -Eeuo pipefail
           # shellcheck disable=SC2046
+          if [ "${{ inputs.flavor }}" = "cpp" ]; then
+            IMAGE_BASE="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer"
+          else
+            IMAGE_BASE="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}"
+          fi
           docker buildx imagetools create \
             $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
-            $(printf 'ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}@sha256:%s ' *)
+            $(printf "${IMAGE_BASE}@sha256:%s " *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }} --format '{{json .}}')
+          if [ "${{ inputs.flavor }}" = "cpp" ]; then
+            IMAGE_NAME="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer:${{ steps.metadata.outputs.version }}"
+          else
+            IMAGE_NAME="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}"
+          fi
+          output=$(docker buildx imagetools inspect "${IMAGE_NAME}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
           CONTAINER_VERSION: ${{ steps.metadata.outputs.version }}
@@ -160,8 +171,8 @@ jobs:
           chmod +x diffoci
           ./diffoci diff --semantic --report-file=container-diff.json "${FROM_CONTAINER}" "${TO_CONTAINER}" || true
         env:
-          FROM_CONTAINER: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:edge
-          TO_CONTAINER: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          FROM_CONTAINER: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer:edge', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}:edge', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
+          TO_CONTAINER: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer:{1}', vars.DOCKERHUB_USERNAME, steps.metadata.outputs.version) || format('{0}/embedded-devcontainer-{1}:{2}', vars.DOCKERHUB_USERNAME, inputs.flavor, steps.metadata.outputs.version) }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: container-diff-${{ inputs.flavor }}
@@ -170,8 +181,8 @@ jobs:
       - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
-          from-container: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:edge
-          to-container: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}:${{ steps.metadata.outputs.version }}
+          from-container: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer:edge', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}:edge', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
+          to-container: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer:{1}', vars.DOCKERHUB_USERNAME, steps.metadata.outputs.version) || format('{0}/embedded-devcontainer-{1}:{2}', vars.DOCKERHUB_USERNAME, inputs.flavor, steps.metadata.outputs.version) }}
       - uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
           header: container-size-diff-${{ inputs.flavor }}
@@ -179,16 +190,23 @@ jobs:
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
       - uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
         with:
-          image: ghcr.io/${{ github.repository_owner }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
+          image: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer@{1}', vars.DOCKERHUB_USERNAME, steps.inspect-manifest.outputs.digest) || format('{0}/embedded-devcontainer-{1}@{2}', vars.DOCKERHUB_USERNAME, inputs.flavor, steps.inspect-manifest.outputs.digest) }}
           dependency-snapshot: true
       - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
-          subject-name: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}
+          subject-name: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
           push-to-registry: true
       - name: Verify attestation
-        run: gh attestation verify --repo "${GH_REPO}" "oci://${{ vars.DOCKERHUB_USERNAME }}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}"
+        run: |
+          set -Eeuo pipefail
+          if [ "${{ inputs.flavor }}" = "cpp" ]; then
+            IMAGE_NAME="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer@${DIGEST}"
+          else
+            IMAGE_NAME="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@${DIGEST}"
+          fi
+          gh attestation verify --repo "${GH_REPO}" "oci://${IMAGE_NAME}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}

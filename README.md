@@ -160,7 +160,7 @@ The resulting containers can be used in a GitHub workflow by using the [`contain
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: ghcr.io/philips-software/devcontainer-cpp:latest
+    container: gabrielfrasantos/embedded-devcontainer:latest
 ```
 
 ## Community

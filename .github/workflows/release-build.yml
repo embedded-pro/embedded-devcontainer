@@ -66,7 +66,6 @@ jobs:
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}
       REF_NAME: ${{ github.ref_name }}
-      REGISTRY: ghcr.io
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -76,18 +75,30 @@ jobs:
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          output=$(docker buildx imagetools inspect "${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}:${REF_NAME}" --format '{{json .}}')
+          if [ "${CONTAINER_FLAVOR}" = "cpp" ]; then
+            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}:${REF_NAME}"
+          else
+            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}:${REF_NAME}"
+          fi
+          output=$(docker buildx imagetools inspect "${IMAGE_NAME}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
-          GH_REPO: ${{ github.repository }}
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
       - name: Upload provenance to release
         run: |
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
-          gh attestation verify --repo "${GH_REPO}" "oci://${REGISTRY}/${GH_REPO}-${CONTAINER_FLAVOR}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
+          if [ "${CONTAINER_FLAVOR}" = "cpp" ]; then
+            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}"
+          else
+            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}"
+          fi
+          gh attestation verify --repo "${GH_REPO}" "oci://${IMAGE_NAME}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
           gh release upload "${REF_NAME}" ./*.intoto.jsonl
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
