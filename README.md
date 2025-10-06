@@ -3,7 +3,7 @@
 > **Note**: This repository is a copy of [philips-software/amp-devcontainer](https://github.com/philips-software/amp-devcontainer).
 
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
+[![Linting & Formatting](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/wc-build-push.yml/badge.svg)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/wc-build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
 <!-- markdownlint enable -->
 
 ## Table of Contents
@@ -50,7 +50,7 @@ This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
 Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/):
 
-- [devcontainer](https://hub.docker.com/repository/docker/gabrielfrasantos/embedded-devcontainer/general); the C++ container
+- [devcontainer](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer); the C++ container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
@@ -114,7 +114,7 @@ This chapter describes how to use embedded-devcontainer for two common use-cases
 
 > [!IMPORTANT]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
-> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/embedded-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
+> See the 🔖 Packages section on the  [releases](https://github.com/embedded-pro/embedded-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
 
 ### Verify image signature
 
