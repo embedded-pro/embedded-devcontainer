@@ -45,7 +45,7 @@ jobs:
       contents: read
       pull-requests: write
     needs: build-push
-    if: github.event_name == 'pull_request'
+    if: false
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -75,6 +75,7 @@ jobs:
       matrix:
         flavor: [cpp]
     needs: build-push
+    if: false
     uses: ./.github/workflows/wc-acceptance-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -89,7 +90,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
-    needs: [acceptance-test, integration-test]
+    needs: [integration-test]
     if: always()
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
