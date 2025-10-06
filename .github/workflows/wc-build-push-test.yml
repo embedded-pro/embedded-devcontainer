@@ -3,6 +3,19 @@ name: Build, Push & Test
 
 on:
   workflow_call:
+    secrets:
+      TEST_GITHUB_TOKEN:
+        required: true
+      TEST_GITHUB_USER:
+        required: true
+      TEST_GITHUB_PASSWORD:
+        required: true
+      TEST_GITHUB_TOTP_SECRET:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      PRIVATE_REPO_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -13,8 +26,11 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push.yml
-    secrets: inherit
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
     permissions:
+      actions: read
       attestations: write
       contents: write
       id-token: write
@@ -23,47 +39,75 @@ jobs:
     with:
       flavor: ${{ matrix.flavor }}
 
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    needs: build-push
+    if: false
+    steps:
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@56339e523c0409420f6c2c9a2f4292bbb3c07dd3 # v4.8.0
+        with:
+          comment-summary-in-pr: on-failure
+          fail-on-severity: critical
+
   integration-test:
     strategy:
       matrix:
-        flavor: [cpp]
-        runner: ["ubuntu-latest"]
+        flavor: [cpp, rust]
+        runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
-    secrets: inherit
+    secrets:
+      PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
     with:
       flavor: ${{ matrix.flavor }}
       runner: ${{ matrix.runner }}
 
-  # acceptance-test:
-  #   strategy:
-  #     matrix:
-  #       flavor: [cpp]
-  #   needs: build-push
-  #   uses: ./.github/workflows/wc-acceptance-test.yml
-  #   secrets: inherit
-  #   with:
-  #     flavor: ${{ matrix.flavor }}
+  acceptance-test:
+    strategy:
+      matrix:
+        flavor: [cpp]
+    needs: build-push
+    if: false
+    uses: ./.github/workflows/wc-acceptance-test.yml
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+    with:
+      flavor: ${{ matrix.flavor }}
 
   publish-test-results:
     runs-on: ubuntu-latest
     permissions:
       checks: write
       pull-requests: write
-      contents: write
-    needs: [
-        #acceptance-test, 
-        integration-test
-        ]
+    needs: [integration-test]
     if: always()
     steps:
-      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
+          disable-sudo: true
           egress-policy: audit
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           merge-multiple: true
           pattern: test-results-*
       - uses: EnricoMi/publish-unit-test-result-action@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6 # v2.20.0
         with:
           files: test-report-*.xml
+
+  generate-documents:
+    uses: ./.github/workflows/wc-document-generation.yml
+    permissions:
+      contents: read
