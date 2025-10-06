@@ -148,9 +148,10 @@ jobs:
           else
             IMAGE_BASE="${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}"
           fi
+          # shellcheck disable=SC2046
           docker buildx imagetools create \
-            "$(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")')" \
-            "$(printf "${IMAGE_BASE}@sha256:%s " *)"
+            $(echo '${{ steps.metadata.outputs.json }}' | jq -r '.tags | map("--tag " + .) | join(" ")') \
+            $(printf "${IMAGE_BASE}@sha256:%s " *)
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |
