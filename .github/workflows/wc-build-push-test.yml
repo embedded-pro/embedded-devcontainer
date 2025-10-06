@@ -66,6 +66,8 @@ jobs:
         runner: ["ubuntu-latest", "ubuntu-24.04-arm"]
     needs: build-push
     uses: ./.github/workflows/wc-integration-test.yml
+    secrets:
+      PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
     with:
       flavor: ${{ matrix.flavor }}
       runner: ${{ matrix.runner }}

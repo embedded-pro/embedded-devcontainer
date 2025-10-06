@@ -10,6 +10,9 @@ on:
       runner:
         required: true
         type: string
+    secrets:
+      PRIVATE_REPO_TOKEN:
+        required: true
 
 permissions:
   contents: read
