@@ -29,8 +29,9 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 ### Key Features
 
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
-- **Multi-platform Support** 🌍: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
-- **Image Flavors** 🖼️: Dedicated containers for C++ and Rust development.
+- **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
+- **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
+- **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
 - **Semantic Versioning** 🔢: Clear versioning strategy for container images.
 - **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
@@ -38,7 +39,8 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 
 The containers try to be as "batteries included" as possible without being overly opinionated, and are usable for both local development and continuous integration.
 
-All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine. This includes Windows, Linux, and macOS on both Intel and Apple silicon.
+All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine.
+This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
 ## Description
 
@@ -48,14 +50,14 @@ Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/
 
 - [devcontainer](https://hub.docker.com/repository/docker/gabrielfrasantos/embedded-devcontainer/general); the C++ container
 
-Both containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
+All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
 A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/devcontainer/releases), or the SBOM attached to the image.
 
 #### devcontainer-cpp
 
-The devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
-The devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
+The embedded-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
+The embedded-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
@@ -70,7 +72,11 @@ For embedded development and flashing and debugging [probe-rs](https://probe.rs/
 
 ### Versioning
 
-The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images. This ensures clear communication of updates and compatibility. The versioning format used is `<major>.<minor>.<patch>`. Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`. The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
+The embedded-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
+This ensures clear communication of updates and compatibility.
+The versioning format used is `<major>.<minor>.<patch>`.
+Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`.
+The latest build on the default branch is tagged with `edge` and pull request builds are tagged with `pr-<number>`.
 
 | Branch       | Tag                        |
 |--------------|----------------------------|
@@ -81,21 +87,62 @@ The amp-devcontainer repository follows a [semantic versioning](https://semver.o
 |              | `<major>.<minor>`          |
 |              | `<major>`                  |
 
-Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is merged, and edge builds may be cleaned up after being stale for a while.
+Released containers will never be cleaned-up, pull request builds are cleaned up when the pull request is closed, and edge builds will be cleaned up shortly after a new edge version has been published.
 
-The release notes always contain an overview of the corresponding image versions that included the full SHA next to the version number. This makes it possible for humans to easily see what version is used while still pinning to an exact version. This is the recommended way to refer to an image.
+The release notes always contain an overview of the corresponding image versions that include the full SHA next to the version number.
+This makes it possible for humans to easily see what version is used while still pinning to an exact version.
+This is the recommended way to refer to an image.
 
-All container images are included in a release. This might change in the future when the need arises to have separate releases per container.
+All container images are included in a release.
+This might change in the future when the need arises to have separate releases per container.
 
-This versioning strategy is implemented as GitHub Actions workflows, ensuring consistency and security across releases. Only the GitHub Action workflow is allowed to create a release, and the resulting images are [signed](#verify-image-signature).
+This versioning strategy is implemented as GitHub Actions workflows, ensuring consistency and security across releases.
+Only the GitHub Action workflow is allowed to create a release, and the resulting images are [signed](#verify-image-signature).
 
 ### Visual Studio Code
 
-Both containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration. All included tools are set-up and necessary plug-ins will be installed at container start. This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels). It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
+All containers can be used in Visual Studio Code or GitHub Codespaces without any additional configuration.
+All included tools are preconfigured and necessary plug-ins will be installed at container start.
+This behavior is implemented by appending devcontainer metadata to an image label according to these [specifications](https://containers.dev/implementors/reference/#labels).
+It is possible to override, amend or change the options following this [merge logic](https://containers.dev/implementors/spec/#merge-logic).
 
 ## Usage
 
-### devcontainer-cpp
+This chapter describes how to use embedded-devcontainer for two common use-cases, and details how to verify the signature of the container images.
+
+> [!IMPORTANT]
+> While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
+> See the 🔖 Packages section on the  [releases](https://github.com/philips-software/embedded-devcontainer/releases) page for the unambiguous identifier corresponding to a specific release.
+
+### Verify image signature
+
+<details><summary>Prior to version 5.6.0</summary>
+
+The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosign](https://docs.sigstore.dev/cosign/signing/overview/) using a keyless signing method.
+
+The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
+
+> embedded-devcontainer-<🍨 flavor>
+
+```sh
+docker run --rm gcr.io/projectsigstore/cosign verify gabrielfrasantos/embedded-devcontainer-<🍨 flavor> --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/embedded-devcontainer
+```
+
+</details>
+
+The container images are signed using the [attest-build-provenance](https://github.com/actions/attest-build-provenance) action.
+
+The attestations can be checked with the following command, verifying that the image is actually built by the GitHub CI system:
+
+> embedded-devcontainer-<🍨 flavor>
+
+```sh
+gh attestation verify --repo philips-software/embedded-devcontainer oci://gabrielfrasantos/embedded-devcontainer-<🍨 flavor>
+```
+
+### Local development
+
+The resulting containers can be used in a `.devcontainer.json` file or in a `.devcontainer` folder.
 
 > .devcontainer/devcontainer.json or .devcontainer.json
 
@@ -131,7 +178,14 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 
 ### Build & Test
 
-The containers can be built and tested locally by importing this repository in VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) plug-in installed. As a prerequisite an OCI compatible container engine needs to be installed on the host system. Alternatively a GitHub Codespace can be started.
+<!-- markdownlint-disable -->
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/embedded-devcontainer)
+<!-- markdownlint enable -->
+
+If you already have VS Code and a OCI compatible container engine installed, you can click the badge above or
+[here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/embedded-devcontainer)
+to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed,
+clone the source code into a container volume, and spin up a dev container for use. Alternatively a GitHub Codespace can be started.
 
 #### Running the Integration Tests
 
@@ -151,5 +205,5 @@ Test can now be run using the Test Explorer. The user interface is available on 
 
 ## Licenses
 
-amp-devcontainer is licensed under the MIT license
+embedded-devcontainer is licensed under the MIT license
 See [license](./LICENSE) for more information.
