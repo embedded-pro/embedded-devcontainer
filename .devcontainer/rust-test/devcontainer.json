@@ -1,4 +1,4 @@
 {
-  "image": "gabrielfrasantos/devcontainer-rust:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/devcontainer/test/rust/workspace"
+  "image": "gabrielfrasantos/embedded-devcontainer-rust:${localEnv:IMAGE_VERSION}",
+  "workspaceFolder": "/workspaces/embedded-devcontainer/test/rust/workspace"
 }

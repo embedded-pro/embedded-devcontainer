@@ -1,6 +1,6 @@
 {
   "image": "gabrielfrasantos/embedded-devcontainer:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/devcontainer/test/cpp/workspace",
+  "workspaceFolder": "/workspaces/embedded-devcontainer/test/cpp/workspace",
   "customizations": {
     "vscode": {
       "settings": {
