@@ -1,5 +1,7 @@
 # devcontainer
 
+> **Note**: This repository is a copy of [philips-software/amp-devcontainer](https://github.com/philips-software/amp-devcontainer).
+
 <!-- markdownlint-disable -->
 [![Linting & Formatting](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/embedded-pro/devcontainer/actions/workflows/build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
 <!-- markdownlint enable -->
