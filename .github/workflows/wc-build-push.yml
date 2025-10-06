@@ -197,7 +197,7 @@ jobs:
           subject-name: ${{ inputs.flavor == 'cpp' && format('{0}/embedded-devcontainer', vars.DOCKERHUB_USERNAME) || format('{0}/embedded-devcontainer-{1}', vars.DOCKERHUB_USERNAME, inputs.flavor) }}
           subject-digest: ${{ steps.inspect-manifest.outputs.digest }}
           show-summary: false
-          push-to-registry: true
+          push-to-registry: false
       - name: Verify attestation
         run: |
           set -Eeuo pipefail
@@ -210,4 +210,4 @@ jobs:
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}
           GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
