@@ -12,6 +12,10 @@ on:
         required: true
       TEST_GITHUB_TOTP_SECRET:
         required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      PRIVATE_REPO_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -22,6 +26,9 @@ jobs:
       matrix:
         flavor: [cpp, rust]
     uses: ./.github/workflows/wc-build-push.yml
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
     permissions:
       actions: read
       attestations: write
