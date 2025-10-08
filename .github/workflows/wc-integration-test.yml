@@ -37,12 +37,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
           pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: |
-          if [ "${CONTAINER_FLAVOR}" = "cpp" ]; then
-            echo "container=$(printf "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer@sha256:%s " *)" >> "$GITHUB_OUTPUT"
-          else
-            echo "container=$(printf "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
-          fi
+      - run: echo "container=$(printf "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
         env:
           GH_REPO: ${{ github.repository }}
