@@ -10,7 +10,7 @@
 
 <!-- We follow conventional commit-style PR titles and kebab-case branch names -->
 
-- [ ] I have followed the [contribution guidelines](https://github.com/philips-software/amp-devcontainer/blob/main/.github/CONTRIBUTING.md) for this repository
+- [ ] I have followed the [contribution guidelines](https://github.com/embedded-pro/embedded-devcontainer/blob/main/.github/CONTRIBUTING.md) for this repository
 - [ ] I have added tests for new behavior, and have not broken any existing tests
 - [ ] I have added or updated relevant documentation
 - [ ] I have verified that all added components are accounted for in the SBOM

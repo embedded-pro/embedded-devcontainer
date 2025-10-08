@@ -75,11 +75,7 @@ jobs:
         id: inspect-manifest
         run: |
           set -Eeuo pipefail
-          if [ "${CONTAINER_FLAVOR}" = "cpp" ]; then
-            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}:${REF_NAME}"
-          else
-            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}:${REF_NAME}"
-          fi
+          IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}:${REF_NAME}"
           output=$(docker buildx imagetools inspect "${IMAGE_NAME}" --format '{{json .}}')
           echo "digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')" >> "$GITHUB_OUTPUT"
         env:
@@ -89,11 +85,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           FORMATTED_DIGEST=${DIGEST//:/_}
-          if [ "${CONTAINER_FLAVOR}" = "cpp" ]; then
-            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}"
-          else
-            IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}"
-          fi
+          IMAGE_NAME="${DOCKERHUB_USERNAME}/${REPOSITORY_NAME}-${CONTAINER_FLAVOR}"
           gh attestation verify --repo "${GH_REPO}" "oci://${IMAGE_NAME}@${DIGEST}" --format json --jq '.[] | .attestation.bundle.dsseEnvelope | select(.payloadType == "application/vnd.in-toto+json").payload' | base64 -d | jq . > "${REPOSITORY_OWNER}-${REPOSITORY_NAME}-${CONTAINER_FLAVOR}_${FORMATTED_DIGEST}.intoto.jsonl"
           gh release upload "${REF_NAME}" ./*.intoto.jsonl
         env:
@@ -117,8 +109,8 @@ jobs:
         run: |
           set -Eeuo pipefail
           UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
+          UPDATED_NOTES=${UPDATED_NOTES//"{{ embedded-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
+          UPDATED_NOTES=${UPDATED_NOTES//"{{ embedded-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}

@@ -10,6 +10,6 @@
 
 | Container                  | Full identifier                                                                                                    |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------|
-| embedded-devcontainer      | gabrielfrasantos/embedded-devcontainer-cpp:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}    |
-| embedded-devcontainer-rust | gabrielfrasantos/embedded-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }} |
+| embedded-devcontainer      | gabrielfrasantos/embedded-devcontainer:{{ embedded-devcontainer-cpp-version }}@{{ embedded-devcontainer-cpp-sha }}    |
+| embedded-devcontainer-rust | gabrielfrasantos/embedded-devcontainer-rust:{{ embedded-devcontainer-rust-version }}@{{ embedded-devcontainer-rust-sha }} |
 
