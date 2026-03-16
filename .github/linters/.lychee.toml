@@ -1,1 +1,2 @@
 accept = [200, 429]
+exclude = ["https://www.conventionalcommits.org"]
