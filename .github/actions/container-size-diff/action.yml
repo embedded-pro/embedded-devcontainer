@@ -51,7 +51,7 @@ runs:
           const modulesPath = process.env.NODE_MODULES_PATH;
           const { execaSync } = require(`${modulesPath}/execa`);
           const { filesize } = require(`${modulesPath}/filesize`);
-          const { markdownTable } = require(`${modulesPath}/markdown-table`);
+          const markdownTable = require(`${modulesPath}/markdown-table`);
           const _ = require(`${modulesPath}/lodash`);
 
           const fromContainer = process.env.FROM_CONTAINER;

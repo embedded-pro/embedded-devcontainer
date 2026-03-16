@@ -57,7 +57,6 @@ jobs:
 
             ### embedded-devcontainer-cpp
 
-            - [ ] The [ARM GNU](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) toolchain is up to date and matches with the GCC version
             - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
             - [ ] The [CPM](https://github.com/cpm-cmake/CPM.cmake) package manager is up to date
             - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
