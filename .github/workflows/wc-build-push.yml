@@ -32,7 +32,7 @@ jobs:
         run: |
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git config --global url."https://github.com/".insteadOf "git@github.com:"
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -100,7 +100,7 @@ jobs:
       packages: write
       pull-requests: write
     steps:
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -129,7 +129,7 @@ jobs:
           # with `type=raw,value=edge,enable=...` which only enables the tag
           # for a `merge_group` event, this removes the need to build on `push`.
           tags: |
-            type=raw,value=edge,enable=${{ github.event_name == 'merge_group' }}
+            type=raw,value=edge,enable=${{ github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch' }}
             type=ref,event=pr
             type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
