@@ -36,7 +36,7 @@ jobs:
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-          pattern: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
+          name: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
       - run: echo "container=$(printf "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
         env:
