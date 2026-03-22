@@ -2,7 +2,7 @@
   "bash-completion": "1:2.11-8",
   "ca-certificates": "20240203",
   "g++-14": "14.2.0-4ubuntu2~24.04.1",
-  "gdb-multiarch": "15.0.50.20240403-0ubuntu1",
+  "gdb-multiarch": "15.1-1ubuntu1~24.04.1",
   "git": "1:2.43.0-1ubuntu7.3",
   "gnupg2": "2.4.4-2ubuntu17.4",
   "ninja-build": "1.11.1-2",
