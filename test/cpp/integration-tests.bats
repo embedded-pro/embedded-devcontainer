@@ -255,7 +255,17 @@ function build_and_run_with_sanitizers() {
 }
 
 function to_semver() {
-  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
+  local input
+  input=$(cat)
+  # Strip parenthesized content (e.g. Ubuntu package metadata) to avoid false matches
+  local cleaned
+  cleaned=$(echo "$input" | sed 's/([^)]*)//g')
+  local result
+  result=$(echo "$cleaned" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+  if [[ -z "$result" ]]; then
+    result=$(echo "$cleaned" | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
+  fi
+  echo "$result"
 }
 
 function get_expected_version_for() {
