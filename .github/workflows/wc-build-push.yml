@@ -32,7 +32,7 @@ jobs:
         run: |
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git config --global url."https://github.com/".insteadOf "git@github.com:"
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -100,7 +100,7 @@ jobs:
       packages: write
       pull-requests: write
     steps:
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -178,7 +178,7 @@ jobs:
           header: container-size-diff-${{ inputs.flavor }}
           message: |
             ${{ steps.container-size-diff.outputs.size-diff-markdown }}
-      - uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
+      - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           image: ${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${{ inputs.flavor }}@${{ steps.inspect-manifest.outputs.digest }}
           dependency-snapshot: true
