@@ -37,12 +37,8 @@ upstream sync must re-apply the deltas listed below.
 | Flavor | Upstream image                                              | This fork                                                       |
 | ------ | ----------------------------------------------------------- | --------------------------------------------------------------- |
 | base   | `ghcr.io/philips-software/amp-devcontainer-base`            | `docker.io/gabrielfrasantos/embedded-devcontainer-base`         |
-| cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`             | `docker.io/gabrielfrasantos/embedded-devcontainer` (no suffix)  |
+| cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`             | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`          |
 | rust   | `ghcr.io/philips-software/amp-devcontainer-rust`            | `docker.io/gabrielfrasantos/embedded-devcontainer-rust`         |
-
-Note: the `cpp` flavor is intentionally the "default" image (no `-cpp` suffix)
-to preserve the historical Docker Hub repo name. The base and rust images keep
-their `-base` / `-rust` suffix.
 
 ### Workflow deltas (vs upstream)
 
@@ -52,11 +48,9 @@ their `-base` / `-rust` suffix.
   reusable `wc-build-push-test.yml`.
 - `continuous-integration.yml` and `release-build.yml` forward the same two
   Docker Hub secrets.
-- `vulnerability-scan.yml` scans the Docker Hub images (with the cpp
-  no-suffix special case) and uses the correct per-flavor Dockerfile path
+- `vulnerability-scan.yml` scans the Docker Hub images and uses the correct per-flavor Dockerfile path
   `.devcontainer/${{ matrix.flavor }}/Dockerfile`.
-- `update-dependencies.yml` runs in the published Docker Hub image at the
-  `:latest` tag (same no-suffix cpp special case).
+- `update-dependencies.yml` runs in the published Docker Hub image at the `:latest` tag.
 - `image-cleanup.yml` / `pr-image-cleanup.yml` still target ghcr.io via
   `dataaxiom/ghcr-cleanup-action`. They are effectively no-ops in this fork
   (we publish to Docker Hub). Leave them or remove them — do not point them
@@ -72,12 +66,11 @@ Run a global rebrand on every upstream sync. The mapping is:
 
 - `philips-software/amp-devcontainer` → `embedded-pro/embedded-devcontainer`
 - `amp-devcontainer-base` / `-rust` → `embedded-devcontainer-base` / `-rust`
-- `amp-devcontainer-cpp` → `embedded-devcontainer-cpp` (text) **but**
-  `gabrielfrasantos/embedded-devcontainer` (image, no suffix)
+- `amp-devcontainer-cpp` → `embedded-devcontainer-cpp` (text and image)
 - `amp-devcontainer` (bare) → `embedded-devcontainer`
 - `/workspaces/amp-devcontainer` → `/workspaces/embedded-devcontainer`
 - `https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-X`
-  → `https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer[-X]`
+  → `https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-X`
 
 **Preserve:**
 
@@ -93,7 +86,7 @@ For CI to actually publish, the following must be set in this fork:
 
 - Repository secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`
   (Docker Hub PAT for the `gabrielfrasantos` account).
-- The Docker Hub repos `gabrielfrasantos/embedded-devcontainer`,
+- The Docker Hub repos `gabrielfrasantos/embedded-devcontainer-cpp`,
   `gabrielfrasantos/embedded-devcontainer-base`, and
   `gabrielfrasantos/embedded-devcontainer-rust` must exist.
 

@@ -1,5 +1,5 @@
 {
-  "image": "gabrielfrasantos/embedded-devcontainer:${localEnv:IMAGE_VERSION}",
+  "image": "gabrielfrasantos/embedded-devcontainer-cpp:${localEnv:IMAGE_VERSION}",
   "workspaceFolder": "/workspaces/embedded-devcontainer/test/cpp/workspace",
   "containerEnv": {
     "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
