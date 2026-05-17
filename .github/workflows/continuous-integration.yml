@@ -15,6 +15,14 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
+    # For Dependabot PRs that update Docker base images or devcontainer dependencies,
+    # run the full build/push pipeline. For all other Dependabot ecosystems (npm, pip,
+    # GitHub Actions), skip the Docker build to avoid hitting Docker Hub pull rate limits
+    # and to avoid needlessly rebuilding images that haven't changed.
+    if: |
+      github.actor != 'dependabot[bot]' ||
+      startsWith(github.head_ref, 'dependabot/docker/') ||
+      startsWith(github.head_ref, 'dependabot/devcontainers/')
     uses: ./.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -35,7 +43,10 @@ jobs:
   dependency-review:
     name: 🔍 Dependency Review
     needs: build-push-test
-    if: ${{ !cancelled() && needs.build-push-test.result == 'success' }}
+    # Run after build-push-test when it succeeded, and also when it was
+    # skipped (i.e. for non-Docker Dependabot PRs), so that dependency
+    # security checks always execute on pull requests.
+    if: ${{ !cancelled() && (needs.build-push-test.result == 'success' || needs.build-push-test.result == 'skipped') }}
     uses: ./.github/workflows/wc-dependency-review.yml
     permissions:
       contents: read
