@@ -15,7 +15,6 @@ Use your best judgment, and feel free to propose changes to this document in a p
     - [Got a Question or Problem?](#got-a-question-or-problem)
   - [Different contributions](#different-contributions)
     - [Found a bug?](#found-a-bug)
-    - [Found a security vulnerability?](#found-a-security-vulnerability)
     - [Missing a Feature?](#missing-a-feature)
     - [Want to improve the documentation?](#want-to-improve-the-documentation)
   - [Submission Guidelines](#submission-guidelines)

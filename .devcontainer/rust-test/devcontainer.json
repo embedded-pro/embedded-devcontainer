@@ -1,4 +1,7 @@
 {
   "image": "gabrielfrasantos/embedded-devcontainer-rust:${localEnv:IMAGE_VERSION}",
-  "workspaceFolder": "/workspaces/embedded-devcontainer/test/rust/workspace"
+  "workspaceFolder": "/workspaces/embedded-devcontainer/test/rust/workspace",
+  "containerEnv": {
+    "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
+  }
 }

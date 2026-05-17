@@ -13,6 +13,4 @@ test-results/
 *.profraw
 *.pyc
 **/playwright/.auth/user.json
-__pycache__/
-*.py[cod]
 CMakeUserPresets.json
