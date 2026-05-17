@@ -111,3 +111,22 @@ For CI to actually publish, the following must be set in this fork:
 5. Validate all JSON (`jq . <file>`) and YAML.
 6. Open PR, address linter / zizmor / Copilot review feedback (see PR #56
    history for prior decisions).
+
+### Acceptance tests / Codespaces
+
+The reusable workflow `.github/workflows/wc-acceptance-test.yml` spins up
+a real GitHub **Codespace** (`gh codespace create -R … -m basicLinux32gb …`)
+to run Playwright feature tests against the devcontainer. This fork does
+**not** use Codespaces, so the acceptance-test job is intentionally
+disabled in `build-push-test.yml` by **not** forwarding the
+`acceptance-test-path` and `acceptance-test-devcontainer-file` inputs to
+`wc-build-push-test.yml`. The downstream `acceptance-test` job is gated
+by `if: ${{ inputs.acceptance-test-devcontainer-file && inputs.acceptance-test-path }}`
+and therefore skips.
+
+Do **not** re-enable the acceptance-test wiring on upstream syncs unless
+the project starts using Codespaces. The `wc-acceptance-test.yml`
+reusable workflow itself, the `.devcontainer/<flavor>-test/`
+devcontainers, and the `test/cpp/features/` directory can stay in place
+as inert dead code (they exist upstream and removing them would add
+merge conflict surface on every sync).
