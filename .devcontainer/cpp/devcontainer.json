@@ -1,19 +1,23 @@
 {
+  "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t amp-devcontainer-base:local .",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": "../.."
+    "context": "../..",
+    "args": {
+      "BASE_IMAGE": "amp-devcontainer-base:local"
+    }
   },
   "forwardPorts": [
     6080
   ],
   "remoteEnv": {
     "CONTAINER_FLAVOR": "cpp",
-    "NODE_EXTRA_CA_CERTS": "/usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt"
+    "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
   },
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:": {},
-    "ghcr.io/devcontainers/features/github-cli:": {},
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/desktop-lite:1.2.9": {},
+    "ghcr.io/devcontainers/features/github-cli:1.1.0": {},
+    "ghcr.io/devcontainers/features/node:2.0.0": {}
   },
   "postCreateCommand": "npm install && npx playwright install --with-deps",
   "customizations": {
@@ -32,16 +36,16 @@
       "extensions": [
         "alexkrechik.cucumberautocomplete@3.1.0",
         "github.copilot@1.388.0",
-        "github.vscode-github-actions@0.31.0",
-        "github.vscode-pull-request-github@0.132.0",
+        "github.vscode-github-actions@0.31.5",
+        "github.vscode-pull-request-github@0.142.0",
         "jetmartin.bats@0.1.10",
         "kherring.bats-test-runner@0.1.3",
         "mhutchie.git-graph@1.30.0",
         "ms-azuretools.vscode-docker@2.0.0",
-        "ms-playwright.playwright@1.1.17",
-        "ms-vscode.cmake-tools@1.22.28",
-        "ms-vscode.cpptools@1.30.5",
-        "sonarsource.sonarlint-vscode@4.44.0",
+        "ms-playwright.playwright@1.1.19",
+        "ms-vscode.cmake-tools@1.23.52",
+        "ms-vscode.cpptools@1.32.2",
+        "sonarsource.sonarlint-vscode@5.2.3",
         "usernamehw.errorlens@3.28.0"
       ]
     }

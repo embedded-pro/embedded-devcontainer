@@ -1,9 +1,9 @@
-# devcontainer
+# embedded-devcontainer
 
 > **Note**: This repository is a copy of [philips-software/amp-devcontainer](https://github.com/philips-software/amp-devcontainer).
 
 <!-- markdownlint-disable -->
-[![Linting & Formatting](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml) [![Build & Push](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/wc-build-push.yml/badge.svg)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/wc-build-push.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267)
+[![Linting & Formatting](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml/badge.svg)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/linting-formatting.yml) [![Continuous Integration](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/embedded-pro/embedded-devcontainer/actions/workflows/continuous-integration.yml) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9267/badge)](https://www.bestpractices.dev/projects/9267) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/embedded-pro/embedded-devcontainer/badge)](https://securityscorecards.dev/viewer/?uri=github.com/embedded-pro/embedded-devcontainer)
 <!-- markdownlint enable -->
 
 ## Table of Contents
@@ -44,37 +44,49 @@ The containers try to be as "batteries included" as possible without being overl
 All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine.
 This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
+## State
+
+This repository is under active development; see [pulse](https://github.com/embedded-pro/embedded-devcontainer/pulse) for more details.
+
 ## Description
 
 ### Image flavors
 
-Two devcontainers are published towards the [Docker Hub](https://hub.docker.com/):
+The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
-- [devcontainer](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer); the C++ container
+- [amp-devcontainer-base](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-base); shared base image used by the other flavors
+- [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
+- [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
-A summary of the included tools can be found below. For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/devcontainer/releases), or the SBOM attached to the image.
+A summary of the included tools can be found below.
+For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/embedded-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/embedded-devcontainer/releases), or the SBOM attached to the image.
 
-#### devcontainer-cpp
+#### amp-devcontainer-base
 
-The embedded-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
-The embedded-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
+The amp-devcontainer-base image is a shared foundation used by the other flavors.
+It consolidates common tooling (e.g. certificates and test tooling) so that the flavor images can focus on language-specific features.
+
+#### amp-devcontainer-cpp
+
+The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
+The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
 
-#### devcontainer-rust
+#### amp-devcontainer-rust
 
-The devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
-The devcontainer-rust includes support for host- and cross-compilation.
+The amp-devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
+The amp-devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
 
 For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
 
 ### Versioning
 
-The embedded-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
+The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
 This ensures clear communication of updates and compatibility.
 The versioning format used is `<major>.<minor>.<patch>`.
 Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`.
@@ -110,7 +122,7 @@ It is possible to override, amend or change the options following this [merge lo
 
 ## Usage
 
-This chapter describes how to use embedded-devcontainer for two common use-cases, and details how to verify the signature of the container images.
+This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.
 
 > [!IMPORTANT]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
@@ -124,10 +136,10 @@ The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosi
 
 The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
 
-> embedded-devcontainer-<🍨 flavor>
+> amp-devcontainer-<🍨 flavor>
 
 ```sh
-docker run --rm gcr.io/projectsigstore/cosign verify gabrielfrasantos/embedded-devcontainer-<🍨 flavor> --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/philips-software/embedded-devcontainer
+docker run --rm gcr.io/projectsigstore/cosign verify gabrielfrasantos/embedded-devcontainer-<🍨 flavor> --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/embedded-pro/embedded-devcontainer
 ```
 
 </details>
@@ -136,10 +148,10 @@ The container images are signed using the [attest-build-provenance](https://gith
 
 The attestations can be checked with the following command, verifying that the image is actually built by the GitHub CI system:
 
-> embedded-devcontainer-<🍨 flavor>
+> amp-devcontainer-<🍨 flavor>
 
 ```sh
-gh attestation verify --repo philips-software/embedded-devcontainer oci://gabrielfrasantos/embedded-devcontainer-<🍨 flavor>
+gh attestation verify --repo embedded-pro/embedded-devcontainer oci://gabrielfrasantos/embedded-devcontainer-<🍨 flavor>
 ```
 
 ### Local development
@@ -150,7 +162,7 @@ The resulting containers can be used in a `.devcontainer.json` file or in a `.de
 
 ```json
 {
-    "image": "gabrielfrasantos/embedded-devcontainer:latest"
+    "image": "gabrielfrasantos/embedded-devcontainer-<🍨 flavor>:latest"
 }
 ```
 
@@ -162,7 +174,7 @@ The resulting containers can be used in a GitHub workflow by using the [`contain
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: gabrielfrasantos/embedded-devcontainer:latest
+    container: gabrielfrasantos/embedded-devcontainer-<🍨 flavor>:latest
 ```
 
 ## Community
@@ -181,11 +193,11 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.htm
 ### Build & Test
 
 <!-- markdownlint-disable -->
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/embedded-devcontainer)
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/embedded-pro/embedded-devcontainer)
 <!-- markdownlint enable -->
 
 If you already have VS Code and a OCI compatible container engine installed, you can click the badge above or
-[here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/philips-software/embedded-devcontainer)
+[here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/embedded-pro/embedded-devcontainer)
 to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed,
 clone the source code into a container volume, and spin up a dev container for use. Alternatively a GitHub Codespace can be started.
 
@@ -205,7 +217,12 @@ GITHUB_TOTP_SECRET=
 
 Test can now be run using the Test Explorer. The user interface is available on port 6080 by-default. When port 6080 is already taken another port will be exposed. This can be seen with the Ports view (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, Ports: Focus on Ports View).
 
+## Reporting vulnerabilities
+
+If you find a vulnerability, please report it to us!
+See [security](.github/SECURITY.md) for more information.
+
 ## Licenses
 
-embedded-devcontainer is licensed under the MIT license
+amp-devcontainer is licensed under the MIT license.
 See [license](./LICENSE) for more information.

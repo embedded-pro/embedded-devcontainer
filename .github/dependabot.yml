@@ -3,6 +3,8 @@ version: 2
 
 updates:
   - package-ecosystem: github-actions
+    cooldown:
+      default-days: 7
     directory: /
     schedule:
       interval: monthly
@@ -14,16 +16,23 @@ updates:
     commit-message:
       prefix: "ci(deps)"
   - package-ecosystem: docker
+    cooldown:
+      default-days: 7
     directories:
+      - .devcontainer/base
       - .devcontainer/cpp
       - .devcontainer/rust
     schedule:
       interval: monthly
   - package-ecosystem: devcontainers
+    cooldown:
+      default-days: 7
     directory: /
     schedule:
       interval: monthly
   - package-ecosystem: npm
+    cooldown:
+      default-days: 7
     directory: /
     schedule:
       interval: monthly
@@ -35,6 +44,8 @@ updates:
     commit-message:
       prefix: "test(deps)"
   - package-ecosystem: pip
+    cooldown:
+      default-days: 7
     directory: .devcontainer
     schedule:
       interval: monthly

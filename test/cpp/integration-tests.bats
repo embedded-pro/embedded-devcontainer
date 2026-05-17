@@ -34,7 +34,7 @@ teardown() {
 
   for TOOL in clang clang++ clang-cl clang-format clang-tidy; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal $INSTALLED_VERSION $EXPECTED_VERSION
   done
 }
 
@@ -44,7 +44,7 @@ teardown() {
 
   for TOOL in cc gcc c++ g++ gcov; do
     INSTALLED_VERSION=$($TOOL --version | to_semver)
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 }
 
@@ -52,27 +52,35 @@ teardown() {
 @test "host and embedded gcc toolchain versions should be the same major and minor version" {
   EXPECTED_MAJOR_MINOR_VERSION=$(get_expected_semver_for g++ | cut -d. -f1,2)
   INSTALLED_MAJOR_MINOR_VERSION=$(arm-none-eabi-gcc -dumpfullversion | cut -d. -f1,2)
-  assert_equal_print $EXPECTED_MAJOR_MINOR_VERSION $INSTALLED_MAJOR_MINOR_VERSION "Host and ARM GCC major and minor version"
+  assert_equal "$INSTALLED_MAJOR_MINOR_VERSION" "$EXPECTED_MAJOR_MINOR_VERSION"
 }
 
 # bats test_tags=Compatibility,Version,Tools
 @test "supporting tool versions should be aligned with expected versions" {
-  for TOOL in gdb gdb-multiarch git ninja; do
+  for TOOL in gdb gdb-multiarch; do
+    EXPECTED_VERSION=$(get_expected_version_for ${TOOL})
+    INSTALLED_VERSION=$(${TOOL} --version | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
+
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
+  done
+
+  for TOOL in git ninja; do
     EXPECTED_VERSION=$(get_expected_semver_for ${TOOL})
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 
   for TOOL in cmake conan; do
     EXPECTED_VERSION=$(cat ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/requirements.in | grep ${TOOL} | to_semver)
     INSTALLED_VERSION=$(${TOOL} --version | to_semver)
 
-    assert_equal_print $EXPECTED_VERSION $INSTALLED_VERSION "Tool '${TOOL}' version"
+    assert_equal "$INSTALLED_VERSION" "$EXPECTED_VERSION"
   done
 }
 
 @test "valid code input should result in working executable using host compiler" {
+  # @sbdl test-comp-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   cmake --build --preset gcc
 
@@ -82,6 +90,7 @@ teardown() {
 }
 
 @test "valid code input should result in elf executable using arm-none-eabi compiler" {
+  # @sbdl test-comp-0002 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0002 }
   cmake --preset gcc-arm-none-eabi
   cmake --build --preset gcc-arm-none-eabi
 
@@ -91,6 +100,7 @@ teardown() {
 }
 
 @test "valid code input should result in Windows executable using clang-cl compiler" {
+  # @sbdl test-comp-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0003 }
   install_win_sdk_when_ci_unset
 
   cmake --preset clang-cl
@@ -106,21 +116,25 @@ teardown() {
 }
 
 @test "invalid code input should result in failing build" {
+  # @sbdl test-comp-0004 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0001 }
   cmake --preset gcc
   run ! cmake --build --preset gcc-fail
 }
 
 @test "using ccache as a compiler launcher should result in cached build using gcc compiler" {
+  # @sbdl test-comp-0005 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0004 }
   configure_and_build_with_ccache gcc
 }
 
 @test "using ccache as a compiler launcher should result in cached build using clang-cl compiler" {
+  # @sbdl test-comp-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-comp-0004 }
   install_win_sdk_when_ci_unset
 
   configure_and_build_with_ccache clang-cl
 }
 
 @test "running clang-tidy as part of the build should result in warning diagnostics" {
+  # @sbdl test-sda-0001 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   cmake --preset clang
 
   run cmake --build --preset clang-tidy
@@ -129,6 +143,7 @@ teardown() {
 }
 
 @test "running include-what-you-use as part of the build should result in warning diagnostics" {
+  # @sbdl test-sda-0002 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   cmake --preset clang
 
   run cmake --build --preset clang-iwyu
@@ -137,12 +152,14 @@ teardown() {
 }
 
 @test "running clang-format should result in re-formatted code" {
+  # @sbdl test-sda-0003 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0001 }
   run clang-format clang-tools/unformatted.cpp
   assert_success
   assert_output "int main() {}"
 }
 
 @test "coverage information should be generated when running a testsuite" {
+  # @sbdl test-sda-0004 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0003 }
   cmake --preset coverage
   cmake --build --preset coverage
 
@@ -155,7 +172,17 @@ teardown() {
   assert_output --partial "GCC Code Coverage Report"
 }
 
+@test "a mutation score should be calculated when mutation testing a testsuite" {
+  # @sbdl test-sda-0005 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0004 }
+  cmake --preset mutation
+  cmake --build --preset mutation
+
+  run ctest --preset mutation
+  assert_output --partial "[info] Mutation score:"
+}
+
 @test "crashes should be detected when fuzzing an executable" {
+  # @sbdl test-sda-0006 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0005 }
   cmake --preset clang
   cmake --build --preset fuzzing
 
@@ -164,18 +191,16 @@ teardown() {
   assert_output --partial "SUMMARY: libFuzzer: deadly signal"
 }
 
-@test "a mutation score should be calculated when mutation testing a testsuite" {
-  cmake --preset mutation
-  cmake --build --preset mutation
-
-  run ctest --preset mutation
-  assert_output --partial "[info] Mutation score:"
-}
-
 @test "clangd should be able to analyze source files" {
+  # @sbdl test-sda-0007 is test { custom:title is [[[[@-LINE]]]]; requirement is req-sda-0002 }
   run clangd --check=gcc/main.cpp
   assert_success
   assert_output --partial "All checks completed, 0 errors"
+}
+
+@test "clangd should start with a specified compile commands path" {
+  run timeout 1s clangd --compile-commands-dir=/root/.amp
+  refute_output --partial "Path specified by --compile-commands-dir does not exist. The argument will be ignored."
 }
 
 @test "using lld as an alternative linker should result in working host executable" {
@@ -255,23 +280,14 @@ function build_and_run_with_sanitizers() {
 }
 
 function to_semver() {
-  local input
-  input=$(cat)
-  # Strip parenthesized content (e.g. Ubuntu package metadata) to avoid false matches
-  local cleaned
-  cleaned=$(echo "$input" | sed 's/([^)]*)//g')
-  local result
-  result=$(echo "$cleaned" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
-  if [[ -z "$result" ]]; then
-    result=$(echo "$cleaned" | grep -o '[0-9]\+\.[0-9]\+' | head -n1)
-  fi
-  echo "$result"
+  grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1
 }
 
 function get_expected_version_for() {
   local TOOL=${1:?}
 
-  jq -sr ".[0] * .[1] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+  jq -sr ".[0] * .[1] * .[2] | to_entries[] | select(.key | startswith(\"${TOOL}\")) | .value | sub(\"-.*\"; \"\")" \
+    ${BATS_TEST_DIRNAME}/../../.devcontainer/base/apt-requirements.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-base.json \
     ${BATS_TEST_DIRNAME}/../../.devcontainer/cpp/apt-requirements-clang.json
 }
@@ -283,21 +299,7 @@ function get_expected_semver_for() {
 }
 
 function install_win_sdk() {
-  # Installing the Windows SDK/CRT takes a long time.
-  # When still valid, use the installation from cache.
-
-  xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-hash list
-  local HASH_LIST_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-hash/dl/manifest*.json | awk '{ print $1 }')
-  local HASH_CACHED_MANIFEST=
-
-  if [[ -d ${BATS_TEST_DIRNAME}/.xwin-cache/dl ]]; then
-    HASH_CACHED_MANIFEST=$(sha256sum ${BATS_TEST_DIRNAME}/.xwin-cache/dl/manifest*.json | awk '{ print $1 }')
-  fi
-
-  if [[ $HASH_LIST_MANIFEST != $HASH_CACHED_MANIFEST ]]; then
-    xwin --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
-  fi
-
+  xwin --http-retry 2 --accept-license --manifest-version 16 --cache-dir ${BATS_TEST_DIRNAME}/.xwin-cache splat --preserve-ms-arch-notation
   ln -sf ${BATS_TEST_DIRNAME}/.xwin-cache/splat/ /winsdk
 }
 
@@ -317,13 +319,4 @@ function install_win_sdk_when_ci_set() {
   if [[ -n "${CI}" ]]; then
     install_win_sdk
   fi
-}
-
-function assert_equal_print() {
-  local EXPECTED=${1:?}
-  local ACTUAL=${2:?}
-  local MESSAGE=${3:-"Expecting values to be equal"}
-
-  echo "# ${MESSAGE} expected(${EXPECTED}) actual(${ACTUAL})" >&3
-  assert_equal ${ACTUAL} ${EXPECTED}
 }

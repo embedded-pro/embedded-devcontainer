@@ -13,62 +13,40 @@ jobs:
     name: Create tool version evaluation issue
     runs-on: ubuntu-latest
     permissions:
-      issues: write
+      contents: read # is needed to checkout the repository
+      issues: write # is needed by gh cli to create/close/pin/unpin issues
     steps:
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/TOOL_VERSION_ISSUE_TEMPLATE.md
+          sparse-checkout-cone-mode: false
       - run: |
-          if [[ $CLOSE_PREVIOUS == true ]]; then
-            previous_issue_number=$(gh issue list \
-              --label "$LABELS" \
-              --json number \
-              --jq '.[0].number')
-            if [[ -n $previous_issue_number ]]; then
-              gh issue close "$previous_issue_number"
-              gh issue unpin "$previous_issue_number"
-            fi
+          previous_issue_number=$(gh issue list \
+            --label "$LABELS" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [[ -n $previous_issue_number ]]; then
+            gh issue close "$previous_issue_number" --reason completed
+            gh issue unpin "$previous_issue_number" || true
           fi
+
           new_issue_url=$(gh issue create \
             --title "$TITLE" \
             --label "$LABELS" \
-            --body "$BODY")
+            --body-file .github/TOOL_VERSION_ISSUE_TEMPLATE.md)
+
           if [[ $PINNED == true ]]; then
             gh issue pin "$new_issue_url"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          TITLE: Evaluate tool versions
           LABELS: scheduled,tool-versions
-          BODY: |
-            ## Description
-
-            This issue is automatically created as a gentle reminder to evaluate and update the tool versions for the container images built from this repository.
-            The checklist below describes the steps that should be taken, and checked-off before this issue can be closed.
-            Any decisions about purposefully not updating a tool to a newer version should be logged as issue comment.
-            The general philosophy is to always include the latest tool versions and the latest [LTS](https://ubuntu.com/about/release-cycle) version of Ubuntu.
-
-            Please note that, where possible, tool versions are kept up to date by Dependabot.
-            Below list includes tools that are not under Dependabot control.
-
-            ## Checklist
-
-            ### embedded-devcontainer-cpp
-
-            - [ ] The [Clang toolchain](https://apt.llvm.org/) is up to date
-            - [ ] The [CPM](https://github.com/cpm-cmake/CPM.cmake) package manager is up to date
-            - [ ] The [Docker cli](https://download.docker.com/linux/static/stable/) is up to date
-            - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
-            - [ ] [Mull](https://github.com/mull-project/mull) is up to date and compatible with the currently installed Clang version
-            - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) is up to date and compatible with the currently installed Clang version
-            - [ ] [xwin](https://github.com/Jake-Shadle/xwin) is up to date
-
-            ### embedded-devcontainer-rust
-
-            - [ ] The [rust](https://rust-lang.org/) toolchain is up to date
-            - [ ] [rust-binstall](https://github.com/cargo-bins/cargo-binstall/releases) is up to date
-            - [ ] [bats-core](https://github.com/bats-core/bats-core), [bats-support](https://github.com/bats-core/bats-support) and [bats-assert](https://github.com/bats-core/bats-assert) are up to date
           PINNED: true
-          CLOSE_PREVIOUS: true
+          TITLE: Evaluate tool versions

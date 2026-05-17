@@ -9,33 +9,27 @@ permissions: {}
 
 jobs:
   delete-images:
+    name: 🗑️ Delete PR Images
     runs-on: ubuntu-latest
     permissions:
-      packages: write
-    strategy:
-      matrix:
-        repo:
-          - embedded-devcontainer
-          - embedded-devcontainer-cpp
-          - embedded-devcontainer-rust
+      packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete images
     steps:
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: nstwfdev/docker-registry-image-cleaner@727b7dba7dcdbc39aadb1b22f2c3a0a717fedbd3 # v1.0.1
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
         with:
-          dockerhub_repo: ${{ matrix.repo }}
-          dockerhub_username: ${{ vars.DOCKERHUB_USERNAME }}
-          dockerhub_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_prefix: pr-${{ github.event.pull_request.number }}
+          delete-tags: pr-${{ github.event.pull_request.number }}
+          packages: amp-devcontainer,amp-devcontainer-cpp,amp-devcontainer-rust
+
   cleanup-cache:
+    name: 🧹 Cleanup Cache
     runs-on: ubuntu-latest
     permissions:
-      # actions: write permission is required to delete the cache
-      actions: write
+      actions: write # is needed to delete workflow run caches
     steps:
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit

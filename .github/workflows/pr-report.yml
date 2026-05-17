@@ -9,22 +9,22 @@ permissions: {}
 
 jobs:
   add-pr-report:
+    name: 📊 Add PR Report
     permissions:
       contents: read
-      checks: read
-      pull-requests: write
-      repository-projects: read
-      actions: read
+      checks: read # is needed by philips-software/pull-request-report-action to fetch check run information
+      pull-requests: write # is needed by philips-software/pull-request-report-action to post the report as a comment on the PR
+      repository-projects: read # is needed by philips-software/pull-request-report-action to fetch project information
+      actions: read # is needed by philips-software/pull-request-report-action to fetch workflow run information
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
       - uses: philips-software/pull-request-report-action@39e2f082490099021474c109cb207953221a8e47 # v0.1.5
         env:
           GITHUB_TOKEN: ${{ github.token }}

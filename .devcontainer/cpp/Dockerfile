@@ -1,35 +1,99 @@
 # syntax=docker/dockerfile:1
+# hadolint global ignore=DL3006
 
-FROM ubuntu:24.04@sha256:353675e2a41babd526e2b837d7ec780c2a05bca0164f7ea5dbbd433d21d166fc AS extractor
+ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
+# Public minisign key for verifying ccache releases,
+# taken from https://ccache.dev/minisign.pub
+ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
+ARG CCACHE_VERSION=4.13.1
+ARG XWIN_VERSION=0.8.0
 
-ARG BATS_CORE_VERSION=1.12.0
-ARG BATS_SUPPORT_VERSION=0.3.0
-ARG BATS_ASSERT_VERSION=2.1.0
+# Downloader stage for AMD64 architecture
+FROM scratch AS downloader-amd64
 
-ADD --checksum=sha256:e36b020436228262731e3319ed013d84fcd7c4bd97a1b34dee33d170e9ae6bab \
- https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_CORE_VERSION}.tar.gz /bats-core.tar.gz
-ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634e2918f \
- https://github.com/bats-core/bats-support/archive/refs/tags/v${BATS_SUPPORT_VERSION}.tar.gz /bats-support.tar.gz
-ADD --checksum=sha256:98ca3b685f8b8993e48ec057565e6e2abcc541034ed5b0e81f191505682037fd \
- https://github.com/bats-core/bats-assert/archive/refs/tags/v2.1.0.tar.gz /bats-assert.tar.gz
+ARG CCACHE_VERSION
+ARG XWIN_VERSION
 
-RUN tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
- && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
- && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert
+ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044aa410f1 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
+ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
-FROM ubuntu:24.04@sha256:353675e2a41babd526e2b837d7ec780c2a05bca0164f7ea5dbbd433d21d166fc
+# Downloader stage for ARM64 architecture
+FROM scratch AS downloader-arm64
 
-ARG CCACHE_VERSION=4.12
-ARG CLANG_VERSION=19
-ARG CPM_VERSION=0.40.2
-ARG INCLUDE_WHAT_YOU_USE_VERSION=0.23
-ARG XWIN_VERSION=0.6.7
+ARG CCACHE_VERSION
+ARG XWIN_VERSION
+
+ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5e42dc8 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
+ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
+ https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
+ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
+
+# Select downloader stage based on target architecture.
+# Linters don't recognize the TARGETARCH variable, so we ignore warnings here.
+# trivy:ignore:AVD-DS-0001
+FROM downloader-${TARGETARCH} AS downloader
+
+ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
+ https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
+ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
+ https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
+
+# Extractor stage using target architecture specific downloader
+FROM ${BASE_IMAGE} AS extractor
+
+ARG CCACHE_MINISIGN_PUBKEY
+ARG CCACHE_VERSION
+ARG XWIN_VERSION
+
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
+
+WORKDIR /
+
+# hadolint ignore=DL3008
+RUN --mount=from=downloader,target=/dl \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
+    apt-get update && apt-get install --no-install-recommends -y minisign
+
+    ARM_GNU_TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-$(uname -m)-arm-none-eabi.tar.xz"
+    ARM_GNU_TOOLCHAIN_TAR="/tmp/arm-gnu-toolchain.tar.xz"
+
+    if [[ "$(uname -m)" == "x86_64" ]]; then
+        ARM_GNU_TOOLCHAIN_SHA256="597893282ac8c6ab1a4073977f2362990184599643b4c5ee34870a8215783a16"
+    elif [[ "$(uname -m)" == "aarch64" ]]; then
+        ARM_GNU_TOOLCHAIN_SHA256="d061559d814b205ed30c5b7c577c03317ec447ca51cd5a159d26b12a5bbeb20c"
+    fi
+
+    wget --no-hsts -qO "${ARM_GNU_TOOLCHAIN_TAR}" "${ARM_GNU_TOOLCHAIN_URL}"
+    echo "${ARM_GNU_TOOLCHAIN_SHA256}  ${ARM_GNU_TOOLCHAIN_TAR}" | sha256sum -c -
+
+    minisign -P "${CCACHE_MINISIGN_PUBKEY}" -Vm /dl/ccache.tar.xz
+
+    tar xJf "${ARM_GNU_TOOLCHAIN_TAR}" --exclude="*arm-none-eabi-gdb*" --exclude="share"
+    tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
+    tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+    cp /dl/llvm.gpg.key /llvm.gpg.key
+    cp /dl/mull.gpg.key /mull.gpg.key
+EOF
+
+# Final development container image
+FROM ${BASE_IMAGE}
+
+ARG CLANG_VERSION=20
+ARG CPM_VERSION=0.42.1
+ARG INCLUDE_WHAT_YOU_USE_VERSION=0.24
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK NONE
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # Set default environment options
 ENV CCACHE_DIR=/cache/.ccache \
@@ -41,54 +105,42 @@ ENV CCACHE_DIR=/cache/.ccache \
     PYTHONPYCACHEPREFIX=/cache/.python
 
 # Install the base system with all tool dependencies
-# hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
+    --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
- apt-get update && apt-get install -y --no-install-recommends jq \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
-    xargs apt-get install -y --no-install-recommends \
- # Include the Cisco Umbrella PKI Root
- && wget --no-hsts -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates \
- # Install some tools via pip to get more recent versions, clean up afterwards
- && python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt \
- && find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete \
- && rm -rf "$(pip cache dir)"
+    --mount=from=extractor,target=/src <<EOF
 
-# Install clang toolchain and mull mutation testing framework
-RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/var/log,sharing=locked \
- wget --no-hsts -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg \
- && wget --no-hsts -qO - https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg \
- && UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2) \
- && echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm.list > /dev/null \
- && echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null \
- && echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences \
- && apt-get update \
- && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | xargs apt-get install -y --no-install-recommends
+    # Install the base system with all tool dependencies
+    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
+        xargs apt-get install -y --no-install-recommends
 
-# Install arm-gcc toolchain
-RUN mkdir /opt/gcc-arm-none-eabi \
- && wget --no-hsts -qO - "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-$(uname -m)-arm-none-eabi.tar.xz" | tar --exclude='*arm-none-eabi-gdb*' --exclude='share' --strip-components=1 -xJC /opt/gcc-arm-none-eabi
+    # Install some tools via pip to get more recent versions, clean up afterwards
+    python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
+    find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
+    rm -rf "$(pip cache dir)"
 
-# Install bats
-RUN --mount=from=extractor,target=/src \
- bash /src/bats-core/install.sh /usr/local \
- && cp -r /src/bats-support /usr/local/bats-support \
- && cp -r /src/bats-assert /usr/local/bats-assert
+    # Install ccache and xwin
+    cp /src/ccache /usr/local/bin/ccache
+    cp /src/xwin /usr/local/bin/xwin
 
-# Install xwin and ccache
-RUN wget --no-hsts -qO - "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl.tar.gz" | tar -xzv -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
- && wget --no-hsts -qO - "https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-$(uname -m).tar.xz" | tar -xJ -C /usr/local/bin --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)/ccache"
+    # Install clang toolchain and mull mutation testing framework
+    cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
+    cat /src/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg
 
-# Install some tools via pip to get more recent versions
-RUN python3 -m pip --no-cache-dir install pre-commit==3.4.0 --break-system-packages
+    UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
+    #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null
+    echo -e 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000' > /etc/apt/preferences
+    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
+        xargs apt-get install -y --no-install-recommends
+
+    # Install arm-gcc toolchain
+    cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
+EOF
 
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
@@ -104,30 +156,21 @@ RUN --mount=type=cache,target=/cache,sharing=locked \
  && apt-get autoremove -y \
  && apt-get clean
 
-# Include the Cisco Umbrella PKI Root
-RUN wget -qO /usr/local/share/ca-certificates/Cisco_Umbrella_Root_CA.crt https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
- && update-ca-certificates
-
 # Update all tool alternatives to the correct version
 # and patch root's bashrc to include bash-completion
 RUN --mount=type=cache,target=/var/log,sharing=locked \
- update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10 \
-                        --slave /usr/bin/g++ g++ /usr/bin/g++-14 \
-                        --slave /usr/bin/gcov gcov /usr/bin/gcov-14 \
- && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-14 10 \
-                        --slave /usr/bin/c++ c++ /usr/bin/g++-14 \
+ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-15 \
+                        --slave /usr/bin/gcov gcov /usr/bin/gcov-15 \
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-15 10 \
+                        --slave /usr/bin/c++ c++ /usr/bin/g++-15 \
  && update-alternatives --install /usr/bin/iwyu iwyu /usr/local/bin/include-what-you-use 10 \
  && update-alternatives --install /usr/bin/mull-runner mull-runner /usr/bin/mull-runner-${CLANG_VERSION} 10 \
                         --slave /usr/bin/mull-reporter mull-reporter /usr/bin/mull-reporter-${CLANG_VERSION} \
                         --slave /usr/lib/mull-ir-frontend mull-ir-frontend /usr/lib/mull-ir-frontend-${CLANG_VERSION} \
  && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 \
+ && mkdir /root/.amp \
  && cp /etc/skel/.bashrc /root/.bashrc
-
-# Setup git branch view in CLI
-RUN printf '%s\n' "parse_git_branch() {" >> /root/.bashrc \
- && printf '%s\n' "    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'" >> /root/.bashrc \
- && printf '%s\n' "}" >> /root/.bashrc \
- && printf '%s\n' "export PS1='\u@\h \[\033[32m\]\w - \$(parse_git_branch)\[\033[00m\] $ '" >> /root/.bashrc
 
 # Set up package managers CPM and Conan
 # - Install CPM.cmake to the CMake module path

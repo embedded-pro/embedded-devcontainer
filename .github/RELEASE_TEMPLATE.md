@@ -8,8 +8,9 @@
 
 #### :bookmark: Packages
 
-| Container                  | Full identifier                                                                                                    |
-|----------------------------|--------------------------------------------------------------------------------------------------------------------|
-| embedded-devcontainer      | gabrielfrasantos/embedded-devcontainer:{{ embedded-devcontainer-cpp-version }}@{{ embedded-devcontainer-cpp-sha }}    |
-| embedded-devcontainer-rust | gabrielfrasantos/embedded-devcontainer-rust:{{ embedded-devcontainer-rust-version }}@{{ embedded-devcontainer-rust-sha }} |
+| Container             | Full identifier                                                                                                    |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------|
+| amp-devcontainer-base | gabrielfrasantos/embedded-devcontainer-base:{{ amp-devcontainer-base-version }}@{{ amp-devcontainer-base-sha }} |
+| amp-devcontainer-cpp  | gabrielfrasantos/embedded-devcontainer:{{ amp-devcontainer-cpp-version }}@{{ amp-devcontainer-cpp-sha }}    |
+| amp-devcontainer-rust | gabrielfrasantos/embedded-devcontainer-rust:{{ amp-devcontainer-rust-version }}@{{ amp-devcontainer-rust-sha }} |
 

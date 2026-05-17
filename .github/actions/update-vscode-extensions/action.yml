@@ -1,22 +1,22 @@
 ---
-name: "Update VS Code Extensions"
-description: "Updates version-pinned VS Code Extensions in JSON files"
+name: Update VS Code Extensions
+description: Updates version-pinned VS Code Extensions in JSON files
 
 inputs:
   input-file:
-    description: "Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`"
+    description: Input file in JSON format containing a list of version pinned VS Code Extensions under `customizations.vscode.extensions`
     required: true
 
 outputs:
   updated-dependencies:
-    description: "JSON array with the names of the updated dependencies"
+    description: JSON array with the names of the updated dependencies
     value: ${{ steps.update-extensions.outputs.updated-dependencies }}
-  markdown-summary:
-    description: "Markdown summary of update result"
-    value: ${{ steps.update-extensions.outputs.markdown-summary }}
+  markdown-summary-file:
+    description: Path to a file containing the markdown summary of update result
+    value: ${{ steps.update-extensions.outputs.markdown-summary-file }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - run: |
         sudo apt-get update
@@ -24,13 +24,7 @@ runs:
         sudo npm install -g @vscode/vsce
       shell: bash
     - run: |
-        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "markdown-summary<<${EOF}" >> "${GITHUB_OUTPUT}"
-        echo "$(${GITHUB_ACTION_PATH}/update-vscode-extensions.sh ${INPUT_FILE})" >> "${GITHUB_OUTPUT}"
-        echo "${EOF}" >> "${GITHUB_OUTPUT}"
-
-        echo "updated-dependencies=$(cat updated-extensions.json)" >> "${GITHUB_OUTPUT}"
-        rm updated-extensions.json
+        "${GITHUB_ACTION_PATH}/update-vscode-extensions.sh" "${INPUT_FILE}"
       id: update-extensions
       shell: bash
       env:

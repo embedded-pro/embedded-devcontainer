@@ -1,0 +1,28 @@
+---
+name: Cleanup Images
+
+on:
+  schedule:
+    - cron: "0 0 * * 3"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  cleanup-images:
+    name: 🧹 Clean Images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # is needed by dataaxiom/ghcr-cleanup-action to delete untagged and orphaned images
+    steps:
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          disable-sudo: true
+          allowed-endpoints: >
+            api.github.com:443
+            ghcr.io:443
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
+        with:
+          delete-orphaned-images: true
+          delete-untagged: true
+          packages: amp-devcontainer,amp-devcontainer-cpp,amp-devcontainer-rust
