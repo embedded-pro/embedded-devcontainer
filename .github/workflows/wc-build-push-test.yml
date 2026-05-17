@@ -151,7 +151,7 @@ jobs:
       test-file: ${{ inputs.integration-test-file }}
 
   integration-test-podman:
-    name: 🧪
+    name: �
     if: ${{ inputs.integration-test-file && inputs.integration-test-podman }}
     needs: build-push
     uses: ./.github/workflows/wc-integration-test-podman.yml

@@ -38,6 +38,7 @@ jobs:
         runner: ${{ fromJson(inputs.build-test-runner-labels) }}
     runs-on: ${{ matrix.runner }}
     container:
+      # zizmor: ignore[unpinned-images] image is pinned to a digest at the call site
       image: ${{ inputs.fully-qualified-image-name }}@${{ inputs.image-digest }}
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_USERNAME || github.actor }}

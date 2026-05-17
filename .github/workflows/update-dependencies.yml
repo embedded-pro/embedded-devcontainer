@@ -19,7 +19,7 @@ jobs:
         flavor: ["base", "cpp", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}:edge
+    container: ${{ matrix.flavor == 'cpp' && 'gabrielfrasantos/embedded-devcontainer' || format('gabrielfrasantos/embedded-devcontainer-{0}', matrix.flavor) }}:latest
     permissions:
       contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
       pull-requests: write # is needed by peter-evans/create-pull-request to create a PR

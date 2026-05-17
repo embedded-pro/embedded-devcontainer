@@ -234,7 +234,7 @@ jobs:
           name: container-diff-${{ needs.sanitize-image-name.outputs.image-basename }}
           path: container-diff.json
           retention-days: 10
-      - uses: embedded-pro/embedded-devcontainer/.github/actions/container-size-diff@94bc4a03c9802aa7d838108e906aea8c7fb33fc7 # v6.10.2
+      - uses: ./.github/actions/container-size-diff
         id: container-size-diff
         with:
           from-container: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}:edge
