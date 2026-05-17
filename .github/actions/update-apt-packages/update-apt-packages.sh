@@ -8,8 +8,13 @@ for FILE in "$@"; do
     JSON=$(cat "$FILE")
 
     for PACKAGE in $(echo "$JSON" | jq -r 'keys | .[]'); do
-        CURRENT_VERSION=$(apt-cache policy "$PACKAGE" | grep -oP '(?<=Installed:\s)(.+)' | head -n1)
-        CANDIDATE_VERSION=$(apt-cache policy "$PACKAGE" | grep -oP '(?<=Candidate:\s)(.+)' | head -n1)
+        POLICY=$(apt-cache policy "$PACKAGE" 2>/dev/null || true)
+        CURRENT_VERSION=$(echo "$POLICY" | grep -oP '(?<=Installed:\s)(.+)' | head -n1 || true)
+        CANDIDATE_VERSION=$(echo "$POLICY" | grep -oP '(?<=Candidate:\s)(.+)' | head -n1 || true)
+        if [[ -z "$CANDIDATE_VERSION" || "$CANDIDATE_VERSION" == "(none)" ]]; then
+            echo "warning: package '$PACKAGE' has no candidate in apt-cache; leaving pinned version untouched" >&2
+            continue
+        fi
         if [[ "$CURRENT_VERSION" != "$CANDIDATE_VERSION" ]];
         then
             UPDATED_PACKAGES_JSON=$(echo "$UPDATED_PACKAGES_JSON" | jq -c --arg package "$PACKAGE" '. += [$package]')
