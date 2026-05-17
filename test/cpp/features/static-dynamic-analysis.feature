@@ -16,7 +16,7 @@ Feature: Static and dynamic analysis
       req-sda-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide code formatting tools for the primary programming language(s)
+        "embedded-devcontainer *MAY* provide code formatting tools for the primary programming language(s)
          used within the container."
         remark is
         "Providing code formatting tools helps maintain a consistent coding style across the
@@ -40,7 +40,7 @@ Feature: Static and dynamic analysis
       req-sda-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide static analysis tools for the primary programming language(s)
+        "embedded-devcontainer *MAY* provide static analysis tools for the primary programming language(s)
          used within the container."
         remark is
         "Providing static analysis tools helps identify potential issues in the code before it is
@@ -58,7 +58,7 @@ Feature: Static and dynamic analysis
       req-sda-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming
+        "embedded-devcontainer *SHOULD* provide code coverage analysis tools for the primary programming
          language(s) used within the container."
         remark is
         "Providing code coverage analysis tools helps assess the effectiveness of the existing test
@@ -75,7 +75,7 @@ Feature: Static and dynamic analysis
       req-sda-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide mutation testing tools for the primary programming
+        "embedded-devcontainer *MAY* provide mutation testing tools for the primary programming
          language(s) used within the container."
         remark is
         "Providing mutation testing tools helps assess the effectiveness of the existing test suite
@@ -92,7 +92,7 @@ Feature: Static and dynamic analysis
       req-sda-0005 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s)
+        "embedded-devcontainer *MAY* provide fuzz testing tools for the primary programming language(s)
          used within the container."
         remark is
         "Providing fuzz testing tools helps identify potential security vulnerabilities and

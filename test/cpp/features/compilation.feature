@@ -16,7 +16,7 @@ Feature: Compilation
       req-comp-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHALL* be able to compile valid source code into a
+        "embedded-devcontainer *SHALL* be able to compile valid source code into a
          working executable targeting the container host architecture and operating system."
         remark is
         "Compiling valid source code into working software, able to run on the container host
@@ -41,11 +41,11 @@ Feature: Compilation
       req-comp-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* be able to compile valid source-code into a working ELF
+        "embedded-devcontainer *SHOULD* be able to compile valid source-code into a working ELF
          executable targeting the ARM Cortex architecture."
         remark is
         "Compiling valid source-code into working ELF executables, able to run on the ARM Cortex
-         architecture, is a primary function for amp-devcontainer. It enables building firmware for
+         architecture, is a primary function for embedded-devcontainer. It enables building firmware for
          micro-controllers based on the ARM Cortex architecture."
       }
     # @sbdl-end
@@ -55,7 +55,7 @@ Feature: Compilation
       req-comp-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* be able to compile valid source-code into a working executable
+        "embedded-devcontainer *SHOULD* be able to compile valid source-code into a working executable
         targeting the Microsoft® Windows operating system."
         remark is
         "Compiling valid source-code into working executables, able to run on the Microsoft® Windows
@@ -72,7 +72,7 @@ Feature: Compilation
       req-comp-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* be able to cache the results of a compilation to speed-up subsequent
+        "embedded-devcontainer *MAY* be able to cache the results of a compilation to speed-up subsequent
          compilations."
         remark is
         "Maintaining a compilation cache can be useful in both local and ci development scenarios.

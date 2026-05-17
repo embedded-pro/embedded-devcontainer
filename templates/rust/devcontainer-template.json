@@ -8,7 +8,7 @@
   "options": {
     "imageVersion": {
       "type": "string",
-      "description": "amp-devcontainer version",
+      "description": "embedded-devcontainer version",
       "default": "6.10.3"
     }
   },

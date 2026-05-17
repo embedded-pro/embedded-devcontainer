@@ -16,11 +16,11 @@ Feature: Compatibility
       req-compat-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer images *SHALL* be compatible with the
+        "embedded-devcontainer images *SHALL* be compatible with the
          [OCI image specification](https://github.com/opencontainers/image-spec/blob/main/spec.md)"
         remark is
         "To guarantee compatibility with container runtimes and container- and image tooling;
-         amp-devcontainer shall be compatible with the OCI image specification."
+         embedded-devcontainer shall be compatible with the OCI image specification."
       }
     # @sbdl-end
 
@@ -29,7 +29,7 @@ Feature: Compatibility
       req-compat-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64)
+        "embedded-devcontainer *SHALL* be compatible with both the x86-64 (AMD64) *and* AArch64 (ARM64)
         host architectures."
         remark is
         "Supporting both x86-64 and AArch64 has several advantages:\n\n
@@ -46,13 +46,13 @@ Feature: Compatibility
       req-compat-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* be compatible with [VS Code](https://code.visualstudio.com/)
+        "embedded-devcontainer *SHOULD* be compatible with [VS Code](https://code.visualstudio.com/)
          *and* [GitHub Codespaces](https://github.com/features/codespaces)."
         remark is
-        "It should be possible to use amp-devcontainer and all of its features in both VS Code and
+        "It should be possible to use embedded-devcontainer and all of its features in both VS Code and
          GitHub Codespaces with minimal effort. Where minimal effort means: with the least amount of
          additional set-up, user intervention or configuration for all functionality that is
-         provided by amp-devcontainer. Features and functions should work \"out-of-the-box\" without
+         provided by embedded-devcontainer. Features and functions should work \"out-of-the-box\" without
          being overly opinionated."
       }
     # @sbdl-end
@@ -62,13 +62,13 @@ Feature: Compatibility
       req-compat-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* support seamless integration with
+        "embedded-devcontainer *SHOULD* support seamless integration with
          [GitHub Actions](https://github.com/features/actions) without additional configuration."
         remark is
-        "Seamless integration with GitHub Actions allows users to easily incorporate amp-devcontainer
+        "Seamless integration with GitHub Actions allows users to easily incorporate embedded-devcontainer
          into their ci/cd workflows. This integration helps automate the build, test, and deployment
          processes, improving efficiency and reducing manual errors. By minimizing the need for
-         additional configuration, users can quickly set up and start using amp-devcontainer in their
+         additional configuration, users can quickly set up and start using embedded-devcontainer in their
          GitHub Actions workflows, enhancing their overall development experience."
       }
     # @sbdl-end

@@ -54,39 +54,39 @@ This repository is under active development; see [pulse](https://github.com/embe
 
 The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
-- [amp-devcontainer-base](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-base); shared base image used by the other flavors
-- [amp-devcontainer-cpp](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-cpp); the C++ container
-- [amp-devcontainer-rust](https://github.com/orgs/philips-software/packages/container/package/amp-devcontainer-rust); the Rust container
+- [embedded-devcontainer-base](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-base); shared base image used by the other flavors
+- [embedded-devcontainer-cpp](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer); the C++ container
+- [embedded-devcontainer-rust](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
 
 A summary of the included tools can be found below.
 For the full list of all included tools and tool versions see the [Dependency Graph](https://github.com/embedded-pro/embedded-devcontainer/network/dependencies), the SBOM published with a [release](https://github.com/embedded-pro/embedded-devcontainer/releases), or the SBOM attached to the image.
 
-#### amp-devcontainer-base
+#### embedded-devcontainer-base
 
-The amp-devcontainer-base image is a shared foundation used by the other flavors.
+The embedded-devcontainer-base image is a shared foundation used by the other flavors.
 It consolidates common tooling (e.g. certificates and test tooling) so that the flavor images can focus on language-specific features.
 
-#### amp-devcontainer-cpp
+#### embedded-devcontainer-cpp
 
-The amp-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
-The amp-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
+The embedded-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.
+The embedded-devcontainer-cpp includes support for host- and cross-compilation using gcc, arm-gcc and clang compilers.
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
 
-#### amp-devcontainer-rust
+#### embedded-devcontainer-rust
 
-The amp-devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
-The amp-devcontainer-rust includes support for host- and cross-compilation.
+The embedded-devcontainer-rust built from this repository contains the Rust ecosystem and additional tools to facilitate, embedded, Rust development.
+The embedded-devcontainer-rust includes support for host- and cross-compilation.
 Next to the Rust ecosystem there is support for code-coverage measurement, mutation testing (using [cargo-mutants](https://mutants.rs/)), fuzzing (using [rust-fuzz](https://rust-fuzz.github.io/book/introduction.html)) and static analysis and formatting (clippy, rustfmt).
 
 For embedded development and flashing and debugging [probe-rs](https://probe.rs/) and [flip-link](https://github.com/knurling-rs/flip-link) are included.
 
 ### Versioning
 
-The amp-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
+The embedded-devcontainer repository follows a [semantic versioning](https://semver.org/spec/v2.0.0.html) strategy for its container images.
 This ensures clear communication of updates and compatibility.
 The versioning format used is `<major>.<minor>.<patch>`.
 Released containers are tagged with `<major>`, `<major>.<minor>`, `<major>.<minor>.<patch>` and `v<major>.<minor>.<patch>`.
@@ -122,7 +122,7 @@ It is possible to override, amend or change the options following this [merge lo
 
 ## Usage
 
-This chapter describes how to use amp-devcontainer for two common use-cases, and details how to verify the signature of the container images.
+This chapter describes how to use embedded-devcontainer for two common use-cases, and details how to verify the signature of the container images.
 
 > [!IMPORTANT]
 > While the following examples use the `latest` tag, it is recommended to pin to a specific version using vX.Y.Z. Or better yet, a specific SHA.
@@ -136,7 +136,7 @@ The container images are signed with [SigStore](https://www.sigstore.dev/) [Cosi
 
 The signature can be [verified](https://docs.sigstore.dev/cosign/verifying/verify/) with the following command (using Docker), verifying that the image is actually signed by the GitHub CI system:
 
-> amp-devcontainer-<🍨 flavor>
+> embedded-devcontainer-<🍨 flavor>
 
 ```sh
 docker run --rm gcr.io/projectsigstore/cosign verify gabrielfrasantos/embedded-devcontainer-<🍨 flavor> --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity-regexp https://github.com/embedded-pro/embedded-devcontainer
@@ -148,7 +148,7 @@ The container images are signed using the [attest-build-provenance](https://gith
 
 The attestations can be checked with the following command, verifying that the image is actually built by the GitHub CI system:
 
-> amp-devcontainer-<🍨 flavor>
+> embedded-devcontainer-<🍨 flavor>
 
 ```sh
 gh attestation verify --repo embedded-pro/embedded-devcontainer oci://gabrielfrasantos/embedded-devcontainer-<🍨 flavor>
@@ -224,5 +224,5 @@ See [security](.github/SECURITY.md) for more information.
 
 ## Licenses
 
-amp-devcontainer is licensed under the MIT license.
+embedded-devcontainer is licensed under the MIT license.
 See [license](./LICENSE) for more information.

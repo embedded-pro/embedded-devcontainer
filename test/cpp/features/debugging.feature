@@ -16,7 +16,7 @@ Feature: Debugging
       req-debug-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHALL* provide debugging support for the primary programming language(s)
+        "embedded-devcontainer *SHALL* provide debugging support for the primary programming language(s)
          used within the container."
         remark is
         "Providing debugging support within the development environment enhances the developer
@@ -34,7 +34,7 @@ Feature: Debugging
       req-debug-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *MAY* provide tools to upload compiled firmware to a connected
+        "embedded-devcontainer *MAY* provide tools to upload compiled firmware to a connected
          micro-controller."
         remark is
         "Providing tools to upload compiled firmware to a connected micro-controller enhances the

@@ -44,7 +44,7 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-apt-packages
+          branch: feature/embedded-devcontainer-${{ matrix.flavor }}/update-apt-packages
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-packages.outputs.updated-dependencies), ', ') }}"
           labels: dependencies,apt
           token: ${{ steps.token.outputs.token }}
@@ -92,7 +92,7 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           commit-message: "Update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
-          branch: feature/amp-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
+          branch: feature/embedded-devcontainer-${{ matrix.flavor }}/update-vscode-extensions-${{ matrix.file }}
           body-path: ${{ runner.temp }}/pull-request-body.md
           title: "chore(deps, ${{ matrix.flavor }}): update ${{ join(fromJson(steps.update-extensions.outputs.updated-dependencies), ', ') }} in ${{ matrix.file }}"
           labels: dependencies,vscode-extensions

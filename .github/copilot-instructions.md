@@ -17,7 +17,7 @@ The key features of this project are described in the top-level README.md, read 
 
 ## Folder Structure
 
-The folder structure of amp-devcontainer is described below, adhere to the existing folder structure.
+The folder structure of embedded-devcontainer is described below, adhere to the existing folder structure.
 
 - `/.devcontainer`: Contains the source code for the container flavors with a top-level devcontainer.json file to enable `clone in container volume` of this repository.
 - `/.devcontainer/[flavor]`: Contains the Dockerfile and configuration for each container flavor (e.g., `cpp`, `rust`).

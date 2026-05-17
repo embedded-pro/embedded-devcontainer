@@ -19,13 +19,13 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 
 ## ✅ Checklist
 
-### 🧱 amp-devcontainer-base
+### 🧱 embedded-devcontainer-base
 
 - [ ] [bats-core](https://github.com/bats-core/bats-core)
 - [ ] [bats-support](https://github.com/bats-core/bats-support)
 - [ ] [bats-assert](https://github.com/bats-core/bats-assert)
 
-### ⚙️ amp-devcontainer-cpp
+### ⚙️ embedded-devcontainer-cpp
 
 - [ ] [ARM GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) — *must match GCC version*
 - [ ] [Clang/LLVM](https://apt.llvm.org/)
@@ -34,7 +34,7 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) — *must be compatible with Clang*
 - [ ] [xwin](https://github.com/Jake-Shadle/xwin)
 
-### 🦀 amp-devcontainer-rust
+### 🦀 embedded-devcontainer-rust
 
 - [ ] [Rust toolchain](https://rust-lang.org/)
 - [ ] [cargo-binstall](https://github.com/cargo-bins/cargo-binstall/releases)

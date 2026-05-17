@@ -4,6 +4,10 @@ name: Build, Push & Test
 on:
   workflow_call:
     secrets:
+      DOCKER_REGISTRY_PASSWORD:
+        required: false
+      DOCKER_REGISTRY_USERNAME:
+        required: false
       TEST_GITHUB_PASSWORD:
         required: false
       TEST_GITHUB_TOKEN:
@@ -19,6 +23,9 @@ jobs:
   build-push-test-base:
     name: 🍨 base
     uses: ./.github/workflows/wc-build-push-test.yml
+    secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     permissions: &build-push-test-permissions
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -30,7 +37,8 @@ jobs:
     with:
       dockerfile: .devcontainer/base/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
-      image-name: ${{ github.repository }}-base
+      image-name: gabrielfrasantos/embedded-devcontainer-base
+      registry: docker.io
       integration-test-file: test/base/integration-tests.bats
       integration-test-podman: true
 
@@ -46,6 +54,8 @@ jobs:
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     permissions: *build-push-test-permissions
     with:
       acceptance-test-path: ${{ (github.actor != 'dependabot[bot]' && matrix.flavor == 'cpp') && 'test/cpp/features' || '' }}
@@ -55,6 +65,7 @@ jobs:
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
-      image-name: ${{ github.repository }}-${{ matrix.flavor }}
+      image-name: ${{ matrix.flavor == 'cpp' && 'gabrielfrasantos/embedded-devcontainer' || format('gabrielfrasantos/embedded-devcontainer-{0}', matrix.flavor) }}
+      registry: docker.io
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true

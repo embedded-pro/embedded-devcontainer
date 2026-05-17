@@ -16,7 +16,7 @@ Feature: Security
       req-sec-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHALL* include build provenance as specified in
+        "embedded-devcontainer *SHALL* include build provenance as specified in
         [SLSA v1.0 Build L3](https://slsa.dev/spec/v1.0/levels)."
         remark is
         "Including provenance gives confidence that the container images haven't been tampered with
@@ -34,7 +34,7 @@ Feature: Security
       req-sec-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHALL* cryptographically sign its released container images."
+        "embedded-devcontainer *SHALL* cryptographically sign its released container images."
         remark is
         "Cryptographically signing released container images provides integrity and authenticity
          guarantees. It enables consumers to verify that the container image hasn't been tampered
@@ -48,7 +48,7 @@ Feature: Security
       req-sec-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* provide a Software Bill of Materials (SBOM) for its released
+        "embedded-devcontainer *SHOULD* provide a Software Bill of Materials (SBOM) for its released
         container images."
         remark is
         "Providing a Software Bill of Materials (SBOM) enables consumers to identify and manage

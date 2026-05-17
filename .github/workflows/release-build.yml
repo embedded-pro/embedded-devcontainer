@@ -25,6 +25,8 @@ jobs:
       packages: write # is needed to push image manifest when using GitHub Container Registry
       pull-requests: write # is needed by marocchino/sticky-pull-request-comment to post comments
     secrets:
+      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
@@ -101,8 +103,8 @@ jobs:
         run: |
           set -Eeuo pipefail
           UPDATED_NOTES=$(gh release view "${REF_NAME}" --json body -q '.body')
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
-          UPDATED_NOTES=${UPDATED_NOTES//"{{ amp-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
+          UPDATED_NOTES=${UPDATED_NOTES//"{{ embedded-devcontainer-${CONTAINER_FLAVOR}-version }}"/"${REF_NAME}"}
+          UPDATED_NOTES=${UPDATED_NOTES//"{{ embedded-devcontainer-${CONTAINER_FLAVOR}-sha }}"/"${DIGEST}"}
           gh release edit "${REF_NAME}" --notes "${UPDATED_NOTES}"
         env:
           DIGEST: ${{ steps.inspect-manifest.outputs.digest }}

@@ -16,7 +16,7 @@ Feature: Maintainability
       req-maint-0001 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* contain up-to-date tools and dependencies."
+        "embedded-devcontainer *SHOULD* contain up-to-date tools and dependencies."
         remark is
         "Keeping tools and dependencies up-to-date helps ensure that the development environment
         remains secure, stable, and compatible with the latest technologies. It also helps prevent
@@ -31,10 +31,10 @@ Feature: Maintainability
       req-maint-0002 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* provide support for automatic updates when consumed as a
+        "embedded-devcontainer *SHOULD* provide support for automatic updates when consumed as a
         dependency."
         remark is
-        "Providing support for automatic updates when amp-devcontainer is consumed as a dependency
+        "Providing support for automatic updates when embedded-devcontainer is consumed as a dependency
         helps ensure that users always have access to the latest features, bug fixes, and security
         patches. This reduces the maintenance burden on users, as they do not need to manually
         track and apply updates. Automatic updates can also help ensure compatibility with other
@@ -48,13 +48,13 @@ Feature: Maintainability
       req-maint-0003 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing
+        "embedded-devcontainer *SHOULD* provide re-usable building blocks to enable building, publishing
          and testing derived containers."
         remark is
         "Providing re-usable building blocks for building, publishing and testing derived containers
          reduces duplication, and ensures consistent application of practices. Derived containers
-         (i.e. containers using amp-devcontainer as a base for further extension) should be able to
-         build, push and test in the same way that amp-devcontainer does, without the need to
+         (i.e. containers using embedded-devcontainer as a base for further extension) should be able to
+         build, push and test in the same way that embedded-devcontainer does, without the need to
          duplicate the build system."
       }
     # @sbdl-end
@@ -64,7 +64,7 @@ Feature: Maintainability
       req-maint-0004 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* document its architectural decisions."
+        "embedded-devcontainer *SHOULD* document its architectural decisions."
         remark is
         "Documenting architectural decisions helps provide context and rationale for the design
         choices made in the development environment. This information can be valuable for future
@@ -80,13 +80,13 @@ Feature: Maintainability
       req-maint-0005 is requirement {
         custom:title is "[@-LINE]"
         description is
-        "amp-devcontainer *SHOULD* aim to keep its container image size as small as possible without
+        "embedded-devcontainer *SHOULD* aim to keep its container image size as small as possible without
          compromising functionality."
         remark is
         "Keeping the container image size small helps improve performance, reduce resource
         consumption, and minimize the time required to download and deploy the development
         environment. A smaller image size can also help reduce storage costs and improve scalability,
         particularly in cloud-based environments. By optimizing the container image size,
-        amp-devcontainer can provide a more efficient and user-friendly experience for developers."
+        embedded-devcontainer can provide a more efficient and user-friendly experience for developers."
       }
     # @sbdl-end
