@@ -13,10 +13,6 @@ jobs:
   update-apt-dependencies:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
     runs-on: ubuntu-latest
-    # Non-blocking: this job pulls the published Docker Hub image to verify
-    # apt source compatibility, which fails on the very first run (before the
-    # image has ever been pushed). Once :latest exists on Docker Hub the job
-    # will run normally.
     continue-on-error: true
     strategy:
       fail-fast: false
