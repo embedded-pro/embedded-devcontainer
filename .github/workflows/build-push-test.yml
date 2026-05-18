@@ -67,7 +67,7 @@ jobs:
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
-      image-name: ${{ matrix.flavor == 'cpp' && 'gabrielfrasantos/embedded-devcontainer' || format('gabrielfrasantos/embedded-devcontainer-{0}', matrix.flavor) }}
+      image-name: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}
       registry: docker.io
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true
