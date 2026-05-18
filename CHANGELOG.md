@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.0.1](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.0.0...v7.0.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* Push cpp container to gabrielfrasantos/embedded-devcontainer-cpp ([#62](https://github.com/embedded-pro/embedded-devcontainer/issues/62)) ([fa917db](https://github.com/embedded-pro/embedded-devcontainer/commit/fa917dbf83bb32d3d3a02018f2b81bf54161de06))
+
+
+### Chores
+
+* **deps:** Bump gcovr from 8.4 to 8.5 in /.devcontainer ([912505e](https://github.com/embedded-pro/embedded-devcontainer/commit/912505ec838ed0b92783b3e1ed3de41f26c4a69e))
+* **deps:** Bump ubuntu in /.devcontainer/cpp ([912505e](https://github.com/embedded-pro/embedded-devcontainer/commit/912505ec838ed0b92783b3e1ed3de41f26c4a69e))
+* **deps:** Bump ubuntu in /.devcontainer/rust ([912505e](https://github.com/embedded-pro/embedded-devcontainer/commit/912505ec838ed0b92783b3e1ed3de41f26c4a69e))
+* Fix all issues ([#32](https://github.com/embedded-pro/embedded-devcontainer/issues/32)) ([6611fcb](https://github.com/embedded-pro/embedded-devcontainer/commit/6611fcb66c1d839aa65dee652e3e8171cc16ed94))
+* Sync amp devcontainer ([#56](https://github.com/embedded-pro/embedded-devcontainer/issues/56)) ([912505e](https://github.com/embedded-pro/embedded-devcontainer/commit/912505ec838ed0b92783b3e1ed3de41f26c4a69e))
+* Update versions ([#38](https://github.com/embedded-pro/embedded-devcontainer/issues/38)) ([7961523](https://github.com/embedded-pro/embedded-devcontainer/commit/796152361ed702957e598b4eb4907e47b1123b7d))
+
 ## [6.10.3](https://github.com/philips-software/amp-devcontainer/compare/v6.10.2...v6.10.3) (2026-05-12)
 
 
