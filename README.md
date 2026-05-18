@@ -55,7 +55,7 @@ This repository is under active development; see [pulse](https://github.com/embe
 The following devcontainers are published towards the [GitHub Container Registry](https://ghcr.io/):
 
 - [embedded-devcontainer-base](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-base); shared base image used by the other flavors
-- [embedded-devcontainer-cpp](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer); the C++ container
+- [embedded-devcontainer-cpp](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-cpp); the C++ container
 - [embedded-devcontainer-rust](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
