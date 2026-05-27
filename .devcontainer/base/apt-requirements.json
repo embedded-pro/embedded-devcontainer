@@ -10,7 +10,7 @@
   "libxkbcommon-dev": "1.13.1-1",
   "libxkbcommon-x11-0": "1.13.1-1",
   "locales": "2.43-2ubuntu2",
-  "python3-venv": "3.13.3-1",
+  "python3-venv": "3.14.3-0ubuntu2",
   "qt6-base-dev": "6.10.2+dfsg-7",
   "udev": "259.5-0ubuntu3",
   "wget": "1.25.0-2ubuntu4",
