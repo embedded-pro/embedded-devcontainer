@@ -120,8 +120,8 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     # Install some tools via pip to get more recent versions, clean up afterwards
     python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
-    find / -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
-    rm -rf "$(pip cache dir)"
+    find / -xdev -regex '^.*\(__pycache__\|\.py[co]\)$' -delete 2>/dev/null || true
+    python3 -m pip cache purge 2>/dev/null || true
 
     # Install ccache and xwin
     cp /src/ccache /usr/local/bin/ccache
