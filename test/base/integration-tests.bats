@@ -12,3 +12,16 @@ setup() {
   assert_success
   assert_output --partial "OK"
 }
+
+@test "xwin is installed and runnable" {
+  assert [ -x /usr/local/bin/xwin ]
+}
+
+@test "windows sdk headers and libraries are present under /winsdk" {
+  assert [ -d /winsdk/crt ]
+  assert [ -d /winsdk/sdk ]
+}
+
+@test "qt6 for windows cross-compilation is present under /opt/qt6-windows" {
+  assert [ -d /opt/qt6-windows/6.4.2/msvc2019_64 ]
+}
