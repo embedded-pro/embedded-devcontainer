@@ -66,9 +66,11 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    cp /etc/skel/.bashrc /root/.bashrc
 EOF
 
+# Download Windows SDK headers and libraries for cross-compilation
 RUN xwin --accept-license splat --include-debug-libs --preserve-ms-arch-notation --output /winsdk \
     && rm -rf /root/.xwin-cache
 
+# Install Qt6 for Windows cross-compilation via aqtinstall
 RUN pip3 install --break-system-packages --no-cache-dir aqtinstall==3.3.0 \
     && aqt install-qt windows desktop 6.4.2 win64_msvc2019_64 --outputdir /opt/qt6-windows \
     && pip3 uninstall --break-system-packages -y aqtinstall \
