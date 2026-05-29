@@ -98,5 +98,5 @@ RUN xwin --accept-license splat --include-debug-libs --preserve-ms-arch-notation
 # Install Qt6 for Windows cross-compilation via aqtinstall (in a temporary venv)
 RUN python3 -m venv /tmp/aqt-venv \
     && /tmp/aqt-venv/bin/pip install --no-cache-dir aqtinstall==3.3.0 \
-    && /tmp/aqt-venv/bin/aqt install-qt windows desktop 6.4.2 win64_msvc2019_64 --outputdir /opt/qt6-windows \
+    && /tmp/aqt-venv/bin/aqt install-qt windows desktop 6.10.2 win64_msvc2022_64 --outputdir /opt/qt6-windows \
     && rm -rf /tmp/aqt-venv /tmp/aqt*
