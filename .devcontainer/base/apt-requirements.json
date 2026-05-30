@@ -14,5 +14,6 @@
   "qt6-base-dev": "6.10.2+dfsg-7",
   "udev": "259.5-0ubuntu3",
   "wget": "1.25.0-2ubuntu4",
+  "xsltproc": "1.1.45-0.1",
   "xz-utils": "5.8.3-1"
 }
