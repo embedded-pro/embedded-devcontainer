@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.1.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.0.1...v7.1.0) (2026-05-29)
+
+
+### Features
+
+* Add gnuplot-qt, Qt6, mesa, xkbcommon, xcb libs, xwin splat, and aqtinstall to base image ([#68](https://github.com/embedded-pro/embedded-devcontainer/issues/68)) ([49756ed](https://github.com/embedded-pro/embedded-devcontainer/commit/49756eda92b335dbe1a9c2bec6775bb0ea7c890e))
+
+
+### Chores
+
+* Update Qt6 version to 6.10.2 in Dockerfile ([#70](https://github.com/embedded-pro/embedded-devcontainer/issues/70)) ([48b194b](https://github.com/embedded-pro/embedded-devcontainer/commit/48b194b4c7af87165ec7bad6624455d1e23fc680))
+
 ## [7.0.1](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.0.0...v7.0.1) (2026-05-18)
 
 
