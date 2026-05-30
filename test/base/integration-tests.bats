@@ -25,3 +25,9 @@ setup() {
 @test "qt6 for windows cross-compilation is present under /opt/qt6-windows" {
   assert [ -d /opt/qt6-windows/6.4.2/msvc2019_64 ]
 }
+
+@test "xsltproc is installed and runnable" {
+  run xsltproc --version
+  assert_success
+  assert_output --partial "libxslt"
+}
