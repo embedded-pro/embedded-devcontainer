@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.2.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.1.0...v7.2.0) (2026-05-30)
+
+
+### Features
+
+* Add package ([#71](https://github.com/embedded-pro/embedded-devcontainer/issues/71)) ([353d857](https://github.com/embedded-pro/embedded-devcontainer/commit/353d857a88806cb814937b7029661849b17edc7f))
+
 ## [7.1.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.0.1...v7.1.0) (2026-05-29)
 
 
