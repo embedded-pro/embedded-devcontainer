@@ -26,7 +26,7 @@ ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c673
 # trivy:ignore:AVD-DS-0001
 FROM downloader-${TARGETARCH} AS downloader
 
-FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 AS extractor
+FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba AS extractor
 
 ARG BATS_CORE_VERSION
 ARG BATS_SUPPORT_VERSION
@@ -49,7 +49,7 @@ RUN --mount=from=downloader,target=/dl \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert \
  && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
 
-FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba
 
 ARG DEBIAN_FRONTEND=noninteractive
 
