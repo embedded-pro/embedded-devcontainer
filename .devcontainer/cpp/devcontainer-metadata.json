@@ -5,13 +5,13 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "llvm-vs-code-extensions.vscode-clangd@0.4.0",
+        "llvm-vs-code-extensions.vscode-clangd@0.6.0",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
         "ms-vscode.cmake-tools@1.23.52",
         "ms-vscode.cpptools@1.32.2",
         "ms-vsliveshare.vsliveshare@1.1.122",
-        "sonarsource.sonarlint-vscode@5.2.3"
+        "sonarsource.sonarlint-vscode@5.5.0"
       ],
       "settings": {
         "C_Cpp.intelliSenseEngine": "disabled",
