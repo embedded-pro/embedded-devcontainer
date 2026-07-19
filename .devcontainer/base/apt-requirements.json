@@ -1,6 +1,6 @@
 {
   "bash-completion": "1:2.16.0-8build1",
-  "ca-certificates": "20260223",
+  "ca-certificates": "20260601~26.04.1",
   "git": "1:2.53.0-1ubuntu1",
   "gnupg2": "2.4.8-4ubuntu3",
   "gnuplot-qt": "6.0.2+dfsg1-2ubuntu2",
@@ -13,7 +13,7 @@
   "python3-venv": "3.14.3-0ubuntu2",
   "qt6-base-dev": "6.10.2+dfsg-7",
   "udev": "259.5-0ubuntu3",
-  "wget": "1.25.0-2ubuntu4",
+  "wget": "1.25.0-2ubuntu4.2",
   "xsltproc": "1.1.45-0.1",
   "xz-utils": "5.8.3-1"
 }
