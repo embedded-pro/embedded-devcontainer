@@ -26,7 +26,7 @@ jobs:
       pull-requests: write # is needed by oxsecurity/megalinter and reviewdog/action-suggester to post PR comments
       security-events: write # is needed by oxsecurity/megalinter for uploading sarif files
     steps:
-      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           disable-sudo: true
           egress-policy: audit
@@ -34,17 +34,17 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: zizmorcore/zizmor-action@b1d7e1fb5de872772f31590499237e7cce841e8e # v0.5.3
+      - uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
         with:
           persona: pedantic
       # flavors/dotnet is the smallest flavor of MegaLinter that contains the linters
       # we are interested in.
-      - uses: oxsecurity/megalinter/flavors/dotnet@8fbdead70d1409964ab3d5afa885e18ee85388bb # v9.4.0
+      - uses: oxsecurity/megalinter/flavors/dotnet@0e3ce9b9c8c10effb9b269509cc47ca17cae31c7 # v9.5.0
         env:
           APPLY_FIXES: all
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+      - uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         if: success() || failure()
         with:
           sarif_file: megalinter-reports/megalinter-report.sarif
@@ -54,6 +54,6 @@ jobs:
           name: Linter Report
           path: |
             megalinter-reports
-      - uses: reviewdog/action-suggester@aa38384ceb608d00f84b4690cacc83a5aba307ff # v1.24.0
+      - uses: reviewdog/action-suggester@2558ba17e65a9039e73764a73009fc05fef28a46 # v1.24.3
         with:
           tool_name: MegaLinter

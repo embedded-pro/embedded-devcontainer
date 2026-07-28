@@ -28,3 +28,5 @@ FILTER_REGEX_EXCLUDE: (CHANGELOG.md|package-lock.json)
 # hence the exclusion
 JSON_V8R_FILTER_REGEX_EXCLUDE: (\.vscode)
 REPOSITORY_TRIVY_ARGUMENTS: --ignorefile .github/linters/.trivyignore.yml
+ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN

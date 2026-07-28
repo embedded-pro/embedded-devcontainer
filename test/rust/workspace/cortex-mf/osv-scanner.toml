@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0110"
+reason = "bare-metal is deprecated/unmaintained upstream with no fixed version; pulled in transitively by cortex-m in this test fixture crate"
