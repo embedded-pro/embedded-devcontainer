@@ -37,15 +37,16 @@ jobs:
         with:
           path: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
           name: digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
-      - run: echo "container=$(printf "${{ vars.DOCKERHUB_USERNAME }}/embedded-devcontainer-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
+      - run: echo "container=$(printf "${DOCKERHUB_USERNAME}/embedded-devcontainer-${CONTAINER_FLAVOR}@sha256:%s " *)" >> "$GITHUB_OUTPUT"
         working-directory: ${{ runner.temp }}/digests-${{ inputs.flavor }}-${{ steps.runner-arch.outputs.arch }}
         env:
           GH_REPO: ${{ github.repository }}
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
         id: set-container
   run-test:
     needs: determine-container
     runs-on: ${{ inputs.runner }}
-    container: ${{ needs.determine-container.outputs.container }}
+    container: ${{ needs.determine-container.outputs.container }} # zizmor: ignore[unpinned-images] output is always a digest-pinned reference resolved in determine-container
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
