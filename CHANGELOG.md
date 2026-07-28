@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.3.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.2.0...v7.3.0) (2026-07-28)
+
+
+### Features
+
+* Bump the github-actions group across 1 directory with 14 updates ([#84](https://github.com/embedded-pro/embedded-devcontainer/issues/84)) ([4479db7](https://github.com/embedded-pro/embedded-devcontainer/commit/4479db798997d3caac17608906ec95383dd4c63b))
+
 ## [7.2.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.1.0...v7.2.0) (2026-05-30)
 
 
