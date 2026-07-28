@@ -23,7 +23,7 @@ setup() {
 }
 
 @test "qt6 for windows cross-compilation is present under /opt/qt6-windows" {
-  assert [ -d /opt/qt6-windows/6.4.2/msvc2019_64 ]
+  assert [ -d /opt/qt6-windows/6.10.2/msvc2022_64 ]
 }
 
 @test "xsltproc is installed and runnable" {
