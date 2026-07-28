@@ -15,5 +15,6 @@
   "udev": "259.5-0ubuntu3",
   "wget": "1.25.0-2ubuntu4",
   "xsltproc": "1.1.45-0.1",
-  "xz-utils": "5.8.3-1"
+  "xz-utils": "5.8.3-1",
+  "qemu-system-arm": "1:10.2.1+ds-1ubuntu3.1"
 }
