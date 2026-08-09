@@ -12,9 +12,9 @@
   "locales": "2.43-2ubuntu2.3",
   "python3-venv": "3.14.3-0ubuntu2",
   "qt6-base-dev": "6.10.2+dfsg-7",
-  "udev": "259.5-0ubuntu3",
+  "udev": "259.5-0ubuntu3.3",
   "wget": "1.25.0-2ubuntu4.3",
   "xsltproc": "1.1.45-0.1",
   "xz-utils": "5.8.3-1",
-  "qemu-system-arm": "1:10.2.1+ds-1ubuntu3.1"
+  "qemu-system-arm": "1:10.2.1+ds-1ubuntu3.2"
 }
