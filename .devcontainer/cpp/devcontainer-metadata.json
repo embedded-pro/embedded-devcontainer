@@ -1,4 +1,7 @@
 {
+  "containerEnv": {
+    "DEBUGINFOD_URLS": ""
+  },
   "remoteEnv": {
     "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
   },

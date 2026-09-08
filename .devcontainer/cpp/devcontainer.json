@@ -10,6 +10,9 @@
   "forwardPorts": [
     6080
   ],
+  "containerEnv": {
+    "DEBUGINFOD_URLS": ""
+  },
   "remoteEnv": {
     "CONTAINER_FLAVOR": "cpp",
     "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/ca-certificates.crt"
