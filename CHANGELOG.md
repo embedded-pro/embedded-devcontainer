@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.4.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.3.0...v7.4.0) (2026-09-08)
+
+
+### Features
+
+* Bump conan from 2.31.2 to 2.32.0 in /.devcontainer ([#111](https://github.com/embedded-pro/embedded-devcontainer/issues/111)) ([171bdd6](https://github.com/embedded-pro/embedded-devcontainer/commit/171bdd625401b6130dcbfcd41e3e5f6d8eb79c6a))
+* **deps:** Consolidate 16 open dependency pull requests, install gh, disable debuginfod ([#119](https://github.com/embedded-pro/embedded-devcontainer/issues/119)) ([b3f14b4](https://github.com/embedded-pro/embedded-devcontainer/commit/b3f14b4b2679e3d67afb3be07a669719beab04de))
+
+
+### Chores
+
+* **deps, base:** Update ca-certificates, locales, qemu-system-arm, udev, wget ([#101](https://github.com/embedded-pro/embedded-devcontainer/issues/101)) ([8f4c47c](https://github.com/embedded-pro/embedded-devcontainer/commit/8f4c47cc700418aa58ee00bbd55c28aae8d8c1c8))
+
 ## [7.3.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.2.0...v7.3.0) (2026-07-28)
 
 
