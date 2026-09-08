@@ -165,7 +165,9 @@ teardown() {
 
   run ctest --preset coverage
   assert_success
-  assert_output --partial "100% tests passed, 0 tests failed out of 1"
+  # CTest omits the ", 0 tests failed" clause when nothing failed as of CMake 4.4,
+  # so accept both the old and the new summary wording.
+  assert_output --regexp "100% tests passed(, 0 tests failed)? out of 1"
 
   run gcovr --exclude=.*/_deps/.*
   assert_success

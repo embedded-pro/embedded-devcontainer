@@ -1,8 +1,9 @@
 {
   "bash-completion": "1:2.16.0-8build1",
   "ca-certificates": "20260601~26.04.1",
+  "gh": "2.46.0-4",
   "git": "1:2.53.0-1ubuntu1",
-  "gnupg2": "2.4.8-4ubuntu3",
+  "gnupg2": "2.4.8-4ubuntu3.1",
   "gnuplot-qt": "6.0.2+dfsg1-2ubuntu2",
   "libgl1-mesa-dev": "26.0.8-1ubuntu0.3",
   "libxcb-cursor0": "0.1.6-1",
