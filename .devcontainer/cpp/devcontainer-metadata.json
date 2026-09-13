@@ -11,8 +11,8 @@
         "llvm-vs-code-extensions.vscode-clangd@0.6.0",
         "marus25.cortex-debug@1.12.1",
         "mhutchie.git-graph@1.30.0",
-        "ms-vscode.cmake-tools@1.23.52",
-        "ms-vscode.cpptools@1.33.8",
+        "ms-vscode.cmake-tools@1.24.42",
+        "ms-vscode.cpptools@1.34.4",
         "ms-vsliveshare.vsliveshare@1.1.122",
         "sonarsource.sonarlint-vscode@5.9.1"
       ],
