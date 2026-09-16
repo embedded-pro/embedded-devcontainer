@@ -10,7 +10,7 @@
   "libxcb-xinerama0": "1.17.0-2ubuntu1",
   "libxkbcommon-dev": "1.13.1-1",
   "libxkbcommon-x11-0": "1.13.1-1",
-  "locales": "2.43-2ubuntu2.3",
+  "locales": "2.43-2ubuntu2.4",
   "python3-venv": "3.14.3-0ubuntu2",
   "qt6-base-dev": "6.10.2+dfsg-7",
   "udev": "259.5-0ubuntu3.4",
