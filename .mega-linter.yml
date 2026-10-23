@@ -18,8 +18,8 @@ DISABLE_LINTERS:
 # reported but do not fail the build. Otherwise every open pull request turns
 # red at once whenever a new advisory is published for any locked dependency.
 # Vulnerability findings are still uploaded as SARIF to code scanning, and
-# pull requests that introduce vulnerable dependencies are blocked by the
-# dependency review in continuous-integration.yml.
+# critical vulnerabilities still block pull requests through the dependency
+# review in continuous-integration.yml.
 DISABLE_ERRORS_LINTERS:
   - REPOSITORY_GRYPE
   - REPOSITORY_OSV_SCANNER
