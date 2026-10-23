@@ -35,7 +35,7 @@ upstream sync must re-apply the deltas listed below.
 ### Image registry & names
 
 | Flavor | Upstream image                                   | This fork, CI (build & test)                      | This fork, published                                    |
-| ------ | ------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------- |
+|--------|--------------------------------------------------|---------------------------------------------------|---------------------------------------------------------|
 | base   | `ghcr.io/philips-software/amp-devcontainer-base` | `ghcr.io/embedded-pro/embedded-devcontainer-base` | `docker.io/gabrielfrasantos/embedded-devcontainer-base` |
 | cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`  | `ghcr.io/embedded-pro/embedded-devcontainer-cpp`  | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`  |
 | rust   | `ghcr.io/philips-software/amp-devcontainer-rust` | `ghcr.io/embedded-pro/embedded-devcontainer-rust` | `docker.io/gabrielfrasantos/embedded-devcontainer-rust` |
