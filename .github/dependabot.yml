@@ -49,3 +49,14 @@ updates:
     directory: .devcontainer
     schedule:
       interval: monthly
+  # Tooling used by the document generation workflow. Keeping it in a
+  # Dependabot-managed lock file prevents pinned versions from silently
+  # disappearing from PyPI and breaking every pull request.
+  - package-ecosystem: pip
+    cooldown:
+      default-days: 7
+    directory: docs
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci(deps)"
