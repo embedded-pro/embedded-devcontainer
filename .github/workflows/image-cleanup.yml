@@ -29,4 +29,4 @@ jobs:
         with:
           delete-orphaned-images: true
           delete-untagged: true
-          packages: embedded-devcontainer,embedded-devcontainer-cpp,embedded-devcontainer-rust
+          packages: embedded-devcontainer-base,embedded-devcontainer-cpp,embedded-devcontainer-rust

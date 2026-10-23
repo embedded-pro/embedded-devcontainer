@@ -31,6 +31,8 @@ jobs:
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+    with:
+      publish-to-docker-hub: true
 
   apply-release-notes-template:
     name: 📝 Apply Release Template
@@ -44,7 +46,7 @@ jobs:
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Amend release description
@@ -69,6 +71,7 @@ jobs:
       # Please note that this is an overly broad scope, but GitHub does not
       # currently provide a more fine-grained permission for release modification.
       contents: write # is needed to modify a release
+      packages: read # is needed to inspect private images on GitHub Container Registry
     needs: [build-push-test, apply-release-notes-template]
     env:
       CONTAINER_FLAVOR: ${{ matrix.flavor }}
@@ -79,6 +82,11 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
       - name: Inspect manifest and extract digest
         id: inspect-manifest
         run: |

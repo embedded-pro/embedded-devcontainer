@@ -13,7 +13,17 @@ DISABLE_LINTERS:
   - REPOSITORY_SEMGREP
   - JSON_JSONLINT
   - SPELL_CSPELL
+# These linters depend on external state that changes independently of a
+# pull request (reachability of links, newly published CVEs), so they are
+# reported but do not fail the build. Otherwise every open pull request turns
+# red at once whenever a new advisory is published for any locked dependency.
+# Vulnerability findings are still uploaded as SARIF to code scanning, and
+# critical vulnerabilities still block pull requests through the dependency
+# review in continuous-integration.yml.
 DISABLE_ERRORS_LINTERS:
+  - REPOSITORY_GRYPE
+  - REPOSITORY_OSV_SCANNER
+  - REPOSITORY_TRIVY
   - SPELL_LYCHEE
 SARIF_REPORTER: true
 PRINT_ALPACA: false

@@ -64,6 +64,22 @@ on:
         required: false
         type: boolean
         default: false
+      mirror-image-name:
+        description: >-
+          Name of the image, without registry or tag, to copy the image to after all tests passed.
+          Only used when `mirror-registry` is set.
+
+          Examples:
+            'my-org/my-image'
+        required: false
+        type: string
+      mirror-registry:
+        description: >-
+          Registry to copy the image to, with all of its tags, after all tests passed.
+          `MIRROR_REGISTRY_USERNAME` and `MIRROR_REGISTRY_PASSWORD` secrets must be set when used.
+          Leave empty to disable mirroring.
+        required: false
+        type: string
       registry:
         description: >-
           Docker registry to push built containers to.
@@ -97,6 +113,12 @@ on:
         required: false
       DOCKER_REGISTRY_USERNAME:
         description: User name for Docker login, if not provided the GitHub actor will be used.
+        required: false
+      MIRROR_REGISTRY_PASSWORD:
+        description: Password or token for logging in to `mirror-registry`.
+        required: false
+      MIRROR_REGISTRY_USERNAME:
+        description: User name for logging in to `mirror-registry`.
         required: false
       TEST_GITHUB_PASSWORD:
         required: false
@@ -141,6 +163,7 @@ jobs:
     uses: ./.github/workflows/wc-integration-test-docker.yml
     permissions:
       contents: read
+      packages: read # is needed to pull private images from GitHub Container Registry
     secrets: *docker-secrets
     with: &integration-test-inputs
       build-test-runner-labels: ${{ inputs.build-test-runner-labels }}
@@ -157,6 +180,7 @@ jobs:
     uses: ./.github/workflows/wc-integration-test-podman.yml
     permissions:
       contents: read
+      packages: read # is needed to pull private images from GitHub Container Registry
     secrets: *docker-secrets
     with: *integration-test-inputs
 
@@ -176,3 +200,29 @@ jobs:
       image-basename: ${{ needs.build-push.outputs.image-basename }}
       devcontainer-file: ${{ inputs.acceptance-test-devcontainer-file }}
       acceptance-test-path: ${{ inputs.acceptance-test-path }}
+
+  mirror-image:
+    name: 🪞
+    if: ${{ !cancelled() && !failure() && inputs.mirror-registry && inputs.mirror-image-name }}
+    needs:
+      - build-push
+      - integration-test-docker
+      - integration-test-podman
+      - acceptance-test
+    uses: ./.github/workflows/wc-mirror-image.yml
+    permissions:
+      artifact-metadata: write # is needed by actions/attest to write artifact metadata
+      attestations: write # is needed by actions/attest to push attestations
+      id-token: write # is needed by actions/attest to obtain an OIDC token
+      packages: read # is needed to read the source image from GitHub Container Registry
+    secrets:
+      MIRROR_REGISTRY_USERNAME: ${{ secrets.MIRROR_REGISTRY_USERNAME }}
+      MIRROR_REGISTRY_PASSWORD: ${{ secrets.MIRROR_REGISTRY_PASSWORD }}
+    with:
+      digest: ${{ needs.build-push.outputs.digest }}
+      runner-labels: ${{ inputs.runner-labels }}
+      source-image-name: ${{ needs.build-push.outputs.fully-qualified-image-name }}
+      source-registry: ${{ inputs.registry }}
+      tag-names: ${{ needs.build-push.outputs.tag-names }}
+      target-image-name: ${{ inputs.mirror-image-name }}
+      target-registry: ${{ inputs.mirror-registry }}

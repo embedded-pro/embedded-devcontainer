@@ -34,26 +34,45 @@ upstream sync must re-apply the deltas listed below.
 
 ### Image registry & names
 
-| Flavor | Upstream image                                              | This fork                                                       |
-| ------ | ----------------------------------------------------------- | --------------------------------------------------------------- |
-| base   | `ghcr.io/philips-software/amp-devcontainer-base`            | `docker.io/gabrielfrasantos/embedded-devcontainer-base`         |
-| cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`             | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`          |
-| rust   | `ghcr.io/philips-software/amp-devcontainer-rust`            | `docker.io/gabrielfrasantos/embedded-devcontainer-rust`         |
+| Flavor | Upstream image                                   | This fork, CI (build & test)                      | This fork, published                                    |
+|--------|--------------------------------------------------|---------------------------------------------------|---------------------------------------------------------|
+| base   | `ghcr.io/philips-software/amp-devcontainer-base` | `ghcr.io/embedded-pro/embedded-devcontainer-base` | `docker.io/gabrielfrasantos/embedded-devcontainer-base` |
+| cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`  | `ghcr.io/embedded-pro/embedded-devcontainer-cpp`  | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`  |
+| rust   | `ghcr.io/philips-software/amp-devcontainer-rust` | `ghcr.io/embedded-pro/embedded-devcontainer-rust` | `docker.io/gabrielfrasantos/embedded-devcontainer-rust` |
+
+All CI reads happen on ghcr.io. A single CI run reads the images dozens of
+times (multi-arch builds, manifest merge, SBOM, attestation verification,
+Docker and Podman integration tests on two architectures); doing that on
+Docker Hub made pull requests fail with `429 toomanyrequests` whenever a
+few ran concurrently. Docker Hub is **write-only** from CI: tested images
+are copied there byte-for-byte (same digest) by `wc-mirror-image.yml`.
+**Do not** point the build/test registry back at Docker Hub.
 
 ### Workflow deltas (vs upstream)
 
-- `build-push-test.yml` overrides `registry: docker.io` and pins each flavor's
-  `image-name` to the `gabrielfrasantos/...` paths above. It also declares and
-  forwards `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD` to the
-  reusable `wc-build-push-test.yml`.
-- `continuous-integration.yml` and `release-build.yml` forward the same two
-  Docker Hub secrets.
+- `build-push-test.yml` builds on ghcr.io (`${{ github.repository }}-<flavor>`)
+  and sets the `mirror-registry` (`docker.io`) and `mirror-image-name`
+  (`gabrielfrasantos/...`) inputs when its `publish-to-docker-hub` input is true. It
+  forwards the Docker Hub secrets **only** as `MIRROR_REGISTRY_USERNAME` /
+  `MIRROR_REGISTRY_PASSWORD`; forwarding them as `DOCKER_REGISTRY_*` would
+  make the build and test jobs log in to ghcr.io with Docker Hub credentials.
+- `continuous-integration.yml` sets `publish-to-docker-hub` for `merge_group`
+  (edge tag) only; `release-build.yml` always sets it (semver tags + latest).
+- `wc-build-push-test.yml` has the extra `mirror-registry` /
+  `mirror-image-name` inputs, the `MIRROR_REGISTRY_*` secrets and a
+  `mirror-image` job that calls the fork-only `wc-mirror-image.yml` after
+  all tests passed. Its integration-test jobs request `packages: read`
+  (also added to `wc-integration-test-docker.yml` and
+  `wc-integration-test-podman.yml`) because the ghcr.io packages are private.
+- `wc-build-push.yml` exposes the `tag-names` output of
+  `docker/metadata-action` (used for mirroring) and configures BuildKit to
+  pull Docker Hub images through `mirror.gcr.io`.
+- `release-build.yml` logs in to ghcr.io in `update-release-notes`.
 - `vulnerability-scan.yml` scans the Docker Hub images and uses the correct per-flavor Dockerfile path
   `.devcontainer/${{ matrix.flavor }}/Dockerfile`.
 - `update-dependencies.yml` runs in the published Docker Hub image at the `:latest` tag.
-- `image-cleanup.yml` / `pr-image-cleanup.yml` still target ghcr.io via
-  `dataaxiom/ghcr-cleanup-action`. They are effectively no-ops in this fork
-  (we publish to Docker Hub). Leave them or remove them — do not point them
+- `image-cleanup.yml` / `pr-image-cleanup.yml` clean up the ghcr.io CI
+  packages (`embedded-devcontainer-base`, `-cpp`, `-rust`). Do not point them
   at Docker Hub, that action does not support it.
 - `wc-build-push.yml` uses the **local** `./.github/actions/container-size-diff`
   rather than `philips-software/amp-devcontainer/.github/actions/...@<sha>`.
@@ -85,7 +104,10 @@ Run a global rebrand on every upstream sync. The mapping is:
 For CI to actually publish, the following must be set in this fork:
 
 - Repository secrets `DOCKER_REGISTRY_USERNAME` and `DOCKER_REGISTRY_PASSWORD`
-  (Docker Hub PAT for the `gabrielfrasantos` account).
+  (Docker Hub PAT for the `gabrielfrasantos` account). They are only used to
+  publish (push) to Docker Hub, pull request builds do not need them.
+- GitHub Actions must be allowed to create packages in the `embedded-pro`
+  organization (the ghcr.io packages are created on the first CI run).
 - The Docker Hub repos `gabrielfrasantos/embedded-devcontainer-cpp`,
   `gabrielfrasantos/embedded-devcontainer-base`, and
   `gabrielfrasantos/embedded-devcontainer-rust` must exist.
