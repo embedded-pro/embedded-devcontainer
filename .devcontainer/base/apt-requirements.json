@@ -2,7 +2,7 @@
   "bash-completion": "1:2.16.0-8build1",
   "ca-certificates": "20260816ubuntu0.26.04.1",
   "gh": "2.46.0-4",
-  "git": "1:2.53.0-1ubuntu1",
+  "git": "1:2.53.0-1ubuntu1.1",
   "gnupg2": "2.4.8-4ubuntu3.1",
   "gnuplot-qt": "6.0.2+dfsg1-2ubuntu2",
   "libgl1-mesa-dev": "26.0.8-1ubuntu0.3",
@@ -13,9 +13,9 @@
   "locales": "2.43-2ubuntu2.4",
   "python3-venv": "3.14.3-0ubuntu2",
   "qt6-base-dev": "6.10.2+dfsg-7",
-  "udev": "259.5-0ubuntu3.4",
+  "udev": "259.9-0ubuntu0.1",
   "wget": "1.25.0-2ubuntu4.4",
   "xsltproc": "1.1.45-0.1",
-  "xz-utils": "5.8.3-1",
+  "xz-utils": "5.8.3-1ubuntu0.1",
   "qemu-system-arm": "1:10.2.1+ds-1ubuntu3.3"
 }
