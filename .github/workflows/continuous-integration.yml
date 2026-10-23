@@ -15,14 +15,15 @@ permissions: {}
 jobs:
   build-push-test:
     name: Build → Push → Test
-    # For Dependabot PRs that update Docker base images or devcontainer dependencies,
-    # run the full build/push pipeline. For all other Dependabot ecosystems (npm, pip,
-    # GitHub Actions), skip the Docker build to avoid hitting Docker Hub pull rate limits
-    # and to avoid needlessly rebuilding images that haven't changed.
+    # For Dependabot PRs that update something that ends up in the images (Docker base
+    # images, devcontainer features, Python packages installed in the containers), run
+    # the full build/push/test pipeline. For all other Dependabot ecosystems (npm,
+    # GitHub Actions) skip it to avoid needlessly rebuilding images that haven't changed.
     if: |
       github.actor != 'dependabot[bot]' ||
       startsWith(github.head_ref, 'dependabot/docker/') ||
-      startsWith(github.head_ref, 'dependabot/devcontainers/')
+      startsWith(github.head_ref, 'dependabot/devcontainers/') ||
+      startsWith(github.head_ref, 'dependabot/pip/dot-devcontainer/')
     uses: ./.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -39,6 +40,10 @@ jobs:
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+    with:
+      # Pull requests only use ghcr.io; the edge images built by the merge queue
+      # are also published to Docker Hub.
+      publish-to-docker-hub: ${{ github.event_name == 'merge_group' }}
 
   dependency-review:
     name: 🔍 Dependency Review

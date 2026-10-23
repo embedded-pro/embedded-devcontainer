@@ -1,8 +1,26 @@
 ---
 name: Build, Push & Test
 
+# Images are always built, pushed and tested on GitHub Container Registry
+# (ghcr.io). GHCR is not subject to pull rate limits for GitHub Actions,
+# whereas a single run of this workflow reads the images dozens of times
+# (multi-arch builds, manifest merges, SBOM, attestation verification,
+# Docker and Podman integration tests on two architectures, ...). Doing
+# that against Docker Hub made pull requests fail with
+# "429 toomanyrequests" whenever a few of them ran at the same time.
+#
+# Docker Hub is only written to: when `publish-to-docker-hub` is set, the
+# images that passed the integration tests are copied (byte-for-byte, so
+# digests and attestations stay valid) to docker.io/gabrielfrasantos/...
+
 on:
   workflow_call:
+    inputs:
+      publish-to-docker-hub:
+        description: Copy the tested images, with all their tags, to Docker Hub.
+        required: false
+        type: boolean
+        default: false
     secrets:
       DOCKER_REGISTRY_PASSWORD:
         required: false
@@ -23,9 +41,12 @@ jobs:
   build-push-test-base:
     name: 🍨 base
     uses: ./.github/workflows/wc-build-push-test.yml
+    # The Docker Hub credentials are only forwarded as mirror credentials.
+    # Forwarding them as DOCKER_REGISTRY_* would make the build and test
+    # jobs use them to log in to ghcr.io instead of the GITHUB_TOKEN.
     secrets:
-      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+      MIRROR_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      MIRROR_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     permissions: &build-push-test-permissions
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
       artifact-metadata: write # is needed by actions/attest-build-provenance to write artifact metadata
@@ -37,10 +58,11 @@ jobs:
     with:
       dockerfile: .devcontainer/base/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
-      image-name: gabrielfrasantos/embedded-devcontainer-base
-      registry: docker.io
+      image-name: ${{ github.repository }}-base
       integration-test-file: test/base/integration-tests.bats
       integration-test-podman: true
+      mirror-image-name: gabrielfrasantos/embedded-devcontainer-base
+      mirror-registry: ${{ inputs.publish-to-docker-hub && 'docker.io' || '' }}
 
   build-push-test-flavors:
     name: 🍨 ${{ matrix.flavor }}
@@ -54,8 +76,8 @@ jobs:
       TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
-      DOCKER_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-      DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+      MIRROR_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      MIRROR_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     permissions: *build-push-test-permissions
     with:
       # Acceptance tests are intentionally disabled in this fork. They depend on
@@ -67,7 +89,8 @@ jobs:
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}
-      image-name: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}
-      registry: docker.io
+      image-name: ${{ github.repository }}-${{ matrix.flavor }}
       integration-test-file: test/${{ matrix.flavor }}/integration-tests.bats
       integration-test-podman: true
+      mirror-image-name: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}
+      mirror-registry: ${{ inputs.publish-to-docker-hub && 'docker.io' || '' }}

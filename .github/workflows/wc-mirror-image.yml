@@ -1,0 +1,119 @@
+# This is a lower-level re-usable workflow that copies an already built,
+# tested and attested multi-architecture image from one registry to another.
+#
+# The image index is copied as-is, so its digest does not change and every
+# attestation made for the source image (GitHub attestations are keyed by
+# digest) is valid for the copy too. The attestation is additionally pushed
+# to the target registry, so it can be discovered there as well.
+#
+# See `wc-build-push-test.yml` for an example of how it is called.
+
+---
+name: Mirror Image
+
+on:
+  workflow_call:
+    inputs:
+      digest:
+        required: true
+        type: string
+      runner-labels:
+        required: true
+        type: string
+      source-image-name:
+        description: Fully qualified name of the source image, without tag or digest (e.g. 'ghcr.io/my-org/my-image').
+        required: true
+        type: string
+      source-registry:
+        required: true
+        type: string
+      tag-names:
+        description: Newline separated list of tags to create in the target registry.
+        required: true
+        type: string
+      target-image-name:
+        description: Name of the target image, without registry or tag (e.g. 'my-org/my-image').
+        required: true
+        type: string
+      target-registry:
+        required: true
+        type: string
+    secrets:
+      MIRROR_REGISTRY_USERNAME:
+        required: true
+      MIRROR_REGISTRY_PASSWORD:
+        required: true
+
+permissions: {}
+
+jobs:
+  mirror-image:
+    name: Mirror to ${{ inputs.target-registry }}
+    runs-on: ${{ fromJson(inputs.runner-labels) }}
+    permissions:
+      artifact-metadata: write # is needed by actions/attest to write artifact metadata
+      attestations: write # is needed by actions/attest to push attestations
+      id-token: write # is needed by actions/attest to obtain an OIDC token
+      packages: read # is needed to read the source image from GitHub Container Registry
+    env:
+      TARGET_IMAGE: ${{ inputs.target-registry }}/${{ inputs.target-image-name }}
+    steps:
+      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          cache-binary: false
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ inputs.source-registry }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ inputs.target-registry }}
+          username: ${{ secrets.MIRROR_REGISTRY_USERNAME }}
+          password: ${{ secrets.MIRROR_REGISTRY_PASSWORD }}
+      - name: Copy image to target registry
+        run: |
+          set -Eeuo pipefail
+
+          tags=()
+          while IFS= read -r tag; do
+            if [ -n "${tag}" ]; then
+              tags+=(--tag "${TARGET_IMAGE}:${tag}")
+            fi
+          done <<< "${TAG_NAMES}"
+
+          if [ "${#tags[@]}" -eq 0 ]; then
+            echo "::error::No tags to mirror for ${SOURCE_IMAGE}@${DIGEST}"
+            exit 1
+          fi
+
+          docker buildx imagetools create "${tags[@]}" "${SOURCE_IMAGE}@${DIGEST}"
+        env:
+          DIGEST: ${{ inputs.digest }}
+          SOURCE_IMAGE: ${{ inputs.source-image-name }}
+          TAG_NAMES: ${{ inputs.tag-names }}
+      - name: Verify the digest did not change
+        run: |
+          set -Eeuo pipefail
+
+          first_tag=$(grep -m1 . <<< "${TAG_NAMES}")
+          output=$(docker buildx imagetools inspect "${TARGET_IMAGE}:${first_tag}" --format '{{json .}}')
+          mirrored_digest=$(echo "$output" | jq -r '.manifest.digest // .manifests[0].digest')
+
+          if [ "${mirrored_digest}" != "${DIGEST}" ]; then
+            echo "::error::Digest of ${TARGET_IMAGE}:${first_tag} (${mirrored_digest}) differs from the source (${DIGEST})"
+            exit 1
+          fi
+        env:
+          DIGEST: ${{ inputs.digest }}
+          TAG_NAMES: ${{ inputs.tag-names }}
+      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ${{ env.TARGET_IMAGE }}
+          subject-digest: ${{ inputs.digest }}
+          show-summary: false
+          push-to-registry: true
