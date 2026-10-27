@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.4.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.3.0...v7.4.0) (2026-10-27)
+
+
+### Features
+
+* Bump cmake from 4.4.3 to 4.4.4 in /.devcontainer ([#136](https://github.com/embedded-pro/embedded-devcontainer/issues/136)) ([2feadbd](https://github.com/embedded-pro/embedded-devcontainer/commit/2feadbdf7dbb9cc2b725ffce35cfa31cf007d553))
+* Bump conan from 2.31.2 to 2.32.0 in /.devcontainer ([#111](https://github.com/embedded-pro/embedded-devcontainer/issues/111)) ([171bdd6](https://github.com/embedded-pro/embedded-devcontainer/commit/171bdd625401b6130dcbfcd41e3e5f6d8eb79c6a))
+* Bump conan from 2.32.0 to 2.33.0 in /.devcontainer ([#138](https://github.com/embedded-pro/embedded-devcontainer/issues/138)) ([44604ab](https://github.com/embedded-pro/embedded-devcontainer/commit/44604abaa5d5c38c76c60f8656ef707d5dc75e4c))
+* Bump ghcr.io/devcontainers/features/node from 2.0.0 to 2.1.1 ([#135](https://github.com/embedded-pro/embedded-devcontainer/issues/135)) ([b00eed0](https://github.com/embedded-pro/embedded-devcontainer/commit/b00eed009f8d259830e85d7367bdf3694c2f5ece))
+* **deps:** Consolidate 11 dependency pull requests and stop unrelated CI failures ([#134](https://github.com/embedded-pro/embedded-devcontainer/issues/134)) ([5032f49](https://github.com/embedded-pro/embedded-devcontainer/commit/5032f4947cf5bbb9401e640096e331723d859701))
+* **deps:** Consolidate 16 open dependency pull requests, install gh, disable debuginfod ([#119](https://github.com/embedded-pro/embedded-devcontainer/issues/119)) ([b3f14b4](https://github.com/embedded-pro/embedded-devcontainer/commit/b3f14b4b2679e3d67afb3be07a669719beab04de))
+
+
+### Chores
+
+* **deps, base:** Update ca-certificates, locales, qemu-system-arm, udev, wget ([#101](https://github.com/embedded-pro/embedded-devcontainer/issues/101)) ([8f4c47c](https://github.com/embedded-pro/embedded-devcontainer/commit/8f4c47cc700418aa58ee00bbd55c28aae8d8c1c8))
+
 ## [7.3.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.2.0...v7.3.0) (2026-07-28)
 
 
