@@ -68,6 +68,15 @@ For the full list of all included tools and tool versions see the [Dependency Gr
 The embedded-devcontainer-base image is a shared foundation used by the other flavors.
 It consolidates common tooling (e.g. certificates and test tooling) so that the flavor images can focus on language-specific features.
 
+It also contains a documentation tool chain, so that design booklets (PDF and static site) can be built with the same container that builds the code:
+
+- [Pandoc](https://pandoc.org/) with a XeLaTeX tool chain (`texlive-xetex`, `texlive-latex-extra`, `texlive-pictures` incl. TikZ/pgfplots, `texlive-fonts-recommended`, Latin Modern and DejaVu fonts)
+- `pdf2svg` and `rsvg-convert` for converting TikZ figures and SVG images
+- [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) (`mmdc`) with a puppeteer-managed headless Chrome, plus Node.js and npm
+- Python 3 with PyYAML
+
+When running as `root` (the default), headless Chrome needs to run without its sandbox; pass a puppeteer configuration to `mmdc`, e.g. `mmdc -p puppeteer.json ...` with `{ "args": ["--no-sandbox"] }`.
+
 #### embedded-devcontainer-cpp
 
 The embedded-devcontainer-cpp built from this repository contains compilers and tools to facilitate modern, embedded, C++ development.

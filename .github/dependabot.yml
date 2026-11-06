@@ -43,6 +43,14 @@ updates:
           - patch
     commit-message:
       prefix: "test(deps)"
+  # Node.js tooling installed in the base image (mermaid-cli and the
+  # puppeteer-managed headless Chrome used for documentation builds).
+  - package-ecosystem: npm
+    cooldown:
+      default-days: 7
+    directory: .devcontainer/base
+    schedule:
+      interval: monthly
   - package-ecosystem: pip
     cooldown:
       default-days: 7

@@ -53,7 +53,8 @@ FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e57
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV LANG=C.UTF-8
+ENV LANG=C.UTF-8 \
+    PUPPETEER_CACHE_DIR=/opt/puppeteer
 
 HEALTHCHECK NONE
 
@@ -89,6 +90,26 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
 
    # Patch root's bashrc to include bash-completion
    cp /etc/skel/.bashrc /root/.bashrc
+EOF
+
+# Install the documentation tool chain used to build design booklets:
+# pandoc and XeLaTeX come from apt (see apt-requirements.json), the mermaid
+# diagram renderer and the headless Chrome it drives are installed here from
+# the Dependabot-managed package-lock.json. The browser is installed explicitly
+# because puppeteer's postinstall hook silently ignores download failures.
+RUN --mount=type=bind,source=.devcontainer/base/package.json,target=/tmp/mermaid-cli/package.json \
+    --mount=type=bind,source=.devcontainer/base/package-lock.json,target=/tmp/mermaid-cli/package-lock.json <<EOF
+
+   mkdir -p /opt/mermaid-cli
+   cp /tmp/mermaid-cli/package.json /tmp/mermaid-cli/package-lock.json /opt/mermaid-cli/
+   cd /opt/mermaid-cli
+
+   PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev --no-audit --no-fund
+   npx --no-install puppeteer browsers install chrome-headless-shell
+   ln -s /opt/mermaid-cli/node_modules/.bin/mmdc /usr/local/bin/mmdc
+
+   npm cache clean --force
+   rm -rf /root/.npm
 EOF
 
 # Download Windows SDK headers and libraries for cross-compilation
