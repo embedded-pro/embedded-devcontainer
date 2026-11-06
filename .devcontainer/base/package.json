@@ -4,7 +4,7 @@
   "private": true,
   "description": "Node.js based tooling installed globally in the base image (diagram rendering for documentation builds).",
   "dependencies": {
-    "@mermaid-js/mermaid-cli": "12.0.0",
+    "@mermaid-js/mermaid-cli": "12.2.0",
     "puppeteer": "25.16.0"
   }
 }
