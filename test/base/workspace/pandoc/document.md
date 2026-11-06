@@ -1,5 +1,4 @@
 ---
-title: "Documentation tool chain"
 documentclass: book
 monofont: "DejaVu Sans Mono"
 ---
