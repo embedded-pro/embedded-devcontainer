@@ -27,7 +27,9 @@ on:
             '[["self-hosted", "linux", "x86_64"], ["self-hosted", "linux", "arm64"]]'
         required: false
         type: string
-        default: '["ubuntu-latest", "ubuntu-24.04-arm"]'
+        # x64 is pinned to ubuntu-24.04, like arm64: on the ubuntu-26.04 runner (ubuntu-latest) the higher
+        # ASLR entropy makes ThreadSanitizer try to disable ASLR, which the test container's seccomp profile blocks.
+        default: '["ubuntu-24.04", "ubuntu-24.04-arm"]'
       devcontainer-metadata-file:
         description: >-
           Path to a JSON file containing devcontainer metadata to add as a label to the built image.
