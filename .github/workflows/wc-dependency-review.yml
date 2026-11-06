@@ -37,3 +37,6 @@ jobs:
         with:
           comment-summary-in-pr: on-failure
           fail-on-severity: critical
+          # The OpenSSF Scorecard lookup runs once per added dependency and is informational only;
+          # with the image SBOMs (hundreds of npm and apt packages) it runs for hours and exhausts memory.
+          show-openssf-scorecard: false
