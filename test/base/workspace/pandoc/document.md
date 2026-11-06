@@ -1,12 +1,12 @@
 ---
-title: "Booklet tool chain test"
+title: "Documentation tool chain"
 documentclass: book
 monofont: "DejaVu Sans Mono"
 ---
 
 # Chapter
 
-Some text with an equation $\boxed{v = R i + L \frac{di}{dt}}$ and a symbol ✓.
+Some text with a boxed equation $\boxed{v = R i + L \frac{di}{dt}}$ and a symbol ✓.
 
 \begin{tcolorbox}
 \begin{tikzpicture}

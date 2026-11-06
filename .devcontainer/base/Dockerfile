@@ -4,21 +4,28 @@
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
+ARG CHROME_HEADLESS_SHELL_VERSION=156.0.8078.47
 ARG XWIN_VERSION=0.8.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
+ARG CHROME_HEADLESS_SHELL_VERSION
 ARG XWIN_VERSION
 
+ADD --checksum=sha256:0d5acc62c3e213f8c87d3c298d66ffcf9a236d12ea4b9f85318bf85dbc279daa \
+ https://storage.googleapis.com/chrome-for-testing-public/${CHROME_HEADLESS_SHELL_VERSION}/linux64/chrome-headless-shell-linux64.zip /chrome-headless-shell.zip
 ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
 FROM scratch AS downloader-arm64
 
+ARG CHROME_HEADLESS_SHELL_VERSION
 ARG XWIN_VERSION
 
+ADD --checksum=sha256:955059fa7020d7be85eb503e21339fd4d718f51f5996d3b60633fbf908bda132 \
+ https://storage.googleapis.com/chrome-for-testing-public/${CHROME_HEADLESS_SHELL_VERSION}/linux-arm64/chrome-headless-shell-linux-arm64.zip /chrome-headless-shell.zip
 ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -43,18 +50,24 @@ ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634
 ADD --checksum=sha256:e305df20c4c36cba4570e10f1cd824efb1ae71d88b5ef474550781ebee04192f \
  https://github.com/bats-core/bats-assert/archive/refs/tags/v${BATS_ASSERT_VERSION}.tar.gz /bats-assert.tar.gz
 
+# hadolint ignore=DL3008
 RUN --mount=from=downloader,target=/dl \
-    tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends unzip \
+ && tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert \
- && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
+ && tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin" \
+ && unzip -q /dl/chrome-headless-shell.zip && mv chrome-headless-shell-linux*/ chrome-headless-shell
 
 FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV LANG=C.UTF-8 \
-    PUPPETEER_CACHE_DIR=/opt/puppeteer
+    PUPPETEER_EXECUTABLE_PATH=/opt/chrome-headless-shell/chrome-headless-shell \
+    PUPPETEER_SKIP_DOWNLOAD=true
 
 HEALTHCHECK NONE
 
@@ -62,6 +75,8 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
+    --mount=type=bind,source=.devcontainer/base/package.json,target=/tmp/package.json \
+    --mount=type=bind,source=.devcontainer/base/package-lock.json,target=/tmp/package-lock.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -84,32 +99,23 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    # Install xwin
    cp /src/xwin /usr/local/bin/xwin
 
+   # Install headless Chrome, used by puppeteer to render mermaid diagrams
+   cp -a /src/chrome-headless-shell /opt/chrome-headless-shell
+
+   # Install some tools via npm, clean up afterwards
+   mkdir -p /opt/mermaid-cli
+   cp /tmp/package.json /tmp/package-lock.json /opt/mermaid-cli/
+   npm ci --prefix /opt/mermaid-cli --omit=dev --no-audit --no-fund
+   ln -s /opt/mermaid-cli/node_modules/.bin/mmdc /usr/local/bin/mmdc
+   npm cache clean --force
+   rm -rf /root/.npm
+
    # Generate locale
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen
    locale-gen
 
    # Patch root's bashrc to include bash-completion
    cp /etc/skel/.bashrc /root/.bashrc
-EOF
-
-# Install the documentation tool chain used to build design booklets:
-# pandoc and XeLaTeX come from apt (see apt-requirements.json), the mermaid
-# diagram renderer and the headless Chrome it drives are installed here from
-# the Dependabot-managed package-lock.json. The browser is installed explicitly
-# because puppeteer's postinstall hook silently ignores download failures.
-RUN --mount=type=bind,source=.devcontainer/base/package.json,target=/tmp/mermaid-cli/package.json \
-    --mount=type=bind,source=.devcontainer/base/package-lock.json,target=/tmp/mermaid-cli/package-lock.json <<EOF
-
-   mkdir -p /opt/mermaid-cli
-   cp /tmp/mermaid-cli/package.json /tmp/mermaid-cli/package-lock.json /opt/mermaid-cli/
-   cd /opt/mermaid-cli
-
-   PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev --no-audit --no-fund
-   npx --no-install puppeteer browsers install chrome-headless-shell
-   ln -s /opt/mermaid-cli/node_modules/.bin/mmdc /usr/local/bin/mmdc
-
-   npm cache clean --force
-   rm -rf /root/.npm
 EOF
 
 # Download Windows SDK headers and libraries for cross-compilation
