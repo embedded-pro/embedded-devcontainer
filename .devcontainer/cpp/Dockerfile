@@ -6,18 +6,24 @@ ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 # taken from https://ccache.dev/minisign.pub
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
+ARG MULL_VERSION=0.36.0
 ARG XWIN_VERSION=0.8.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
 ARG CCACHE_VERSION
+ARG MULL_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:dd9fc188e738add3c12509063bb082b05e77a9a71fa85a20e01230044aa410f1 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:fdf00b1eadebf437e898ca3c0c94fd3e8d03b9e2bbe4f3d74ac6df2fecbf0a74 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
+ADD --checksum=sha256:e142168a8b95476df66930f94d47dfcce935815bdb9ccb04c3c7cf347235057a \
+ https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-${MULL_VERSION}-ubuntu-amd64-26.04.deb /mull.deb
+ADD --checksum=sha256:2f64f286bbc2963c1694f2f93d8984cc2133ee7d2b449e7ea1ed830c8fd05fd7 \
+ https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-20-${MULL_VERSION}-LLVM-20.1.8-ubuntu-amd64-26.04.deb /mull-clang.deb
 ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -25,12 +31,17 @@ ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f7
 FROM scratch AS downloader-arm64
 
 ARG CCACHE_VERSION
+ARG MULL_VERSION
 ARG XWIN_VERSION
 
 ADD --checksum=sha256:4cf4b05d9c381b3a60f1f10189f45ad9402bbc58979dbdc4901659c7f5e42dc8 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz /ccache.tar.xz
 ADD --checksum=sha256:24b50ebf8ce5ec9e5e56af298ddb17699a46f0d9bb035d7c824500270a5cde74 \
  https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-aarch64-glibc.tar.xz.minisig /ccache.tar.xz.minisig
+ADD --checksum=sha256:f1595c9354510e75d7768ce22d850aa8a352abfa3e32ea29eb9ffa23dfe3d8b6 \
+ https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-${MULL_VERSION}-ubuntu-aarch64-26.04.deb /mull.deb
+ADD --checksum=sha256:73fa56e89aea0ca9d57a3131b6bc6f93a6d645acfa32e1d9a1c24d1a977cb4e5 \
+ https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-20-${MULL_VERSION}-LLVM-20.1.8-ubuntu-aarch64-26.04.deb /mull-clang.deb
 ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
@@ -41,8 +52,6 @@ FROM downloader-${TARGETARCH} AS downloader
 
 ADD --checksum=sha256:8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d \
  https://apt.llvm.org/llvm-snapshot.gpg.key /llvm.gpg.key
-ADD --checksum=sha256:db2938ce5fd422f2db7a07508452772c945135d99274004c462190c323fefcf1 \
- https://dl.cloudsmith.io/public/mull-project/mull-stable/gpg.41DB35380DE6BD6F.key /mull.gpg.key
 
 # Extractor stage using target architecture specific downloader
 FROM ${BASE_IMAGE} AS extractor
@@ -79,7 +88,7 @@ RUN --mount=from=downloader,target=/dl \
     tar xJf /dl/ccache.tar.xz --strip-components=1 "ccache-${CCACHE_VERSION}-linux-$(uname -m)-glibc/ccache"
     tar xzf /dl/xwin.tar.gz --strip-components=1 "xwin-${XWIN_VERSION}-$(uname -m)-unknown-linux-musl/xwin"
     cp /dl/llvm.gpg.key /llvm.gpg.key
-    cp /dl/mull.gpg.key /mull.gpg.key
+    cp /dl/mull.deb /dl/mull-clang.deb /
 EOF
 
 # Final development container image
@@ -129,14 +138,13 @@ RUN --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target
 
     # Install clang toolchain and mull mutation testing framework
     cat /src/llvm.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot-keyring.gpg
-    cat /src/mull.gpg.key | gpg --dearmor -o /usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg
 
-    UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
+    #UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
     #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
-    echo "deb [signed-by=/usr/share/keyrings/mull-project-mull-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/mull-project/mull-stable/deb/ubuntu ${UBUNTU_CODENAME} main" | tee /etc/apt/sources.list.d/mull-project-mull-stable.list > /dev/null
     printf 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000\n' > /etc/apt/preferences
     apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
         xargs apt-get install -y --no-install-recommends
+    apt-get install -y --no-install-recommends /src/mull.deb /src/mull-clang.deb
 
     # Install arm-gcc toolchain
     cp -a /src/arm-gnu-toolchain-*-arm-none-eabi /opt/gcc-arm-none-eabi
