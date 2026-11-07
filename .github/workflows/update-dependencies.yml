@@ -30,6 +30,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # Mull is no longer installed from its Cloudsmith apt repository (bandwidth exhausted, HTTP 402),
+      # but images published before that change still contain the source. Remove it so apt-get update succeeds;
+      # this step can be dropped once the published images no longer contain the source.
+      - name: Remove discontinued apt sources
+        run: rm -f /etc/apt/sources.list.d/mull-project-mull-stable.list
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
         with:
