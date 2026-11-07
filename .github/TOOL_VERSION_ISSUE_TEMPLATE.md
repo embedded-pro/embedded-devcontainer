@@ -34,6 +34,10 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) — *must be compatible with Clang*
 - [ ] [xwin](https://github.com/Jake-Shadle/xwin)
 
+### 📝 embedded-devcontainer-documentation
+
+- [ ] [chrome-headless-shell](https://googlechromelabs.github.io/chrome-for-testing/) — *must match the version expected by puppeteer*
+
 ### 🦀 embedded-devcontainer-rust
 
 - [ ] [Rust toolchain](https://rust-lang.org/)

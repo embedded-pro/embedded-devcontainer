@@ -1,0 +1,18 @@
+{
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bierner.markdown-mermaid@1.32.1",
+        "davidanson.vscode-markdownlint@0.62.1",
+        "james-yu.latex-workshop@10.20.0",
+        "mhutchie.git-graph@1.30.0",
+        "ms-vsliveshare.vsliveshare@1.1.122",
+        "usernamehw.errorlens@3.30.0",
+        "yzhang.markdown-all-in-one@3.6.3"
+      ]
+    }
+  }
+}

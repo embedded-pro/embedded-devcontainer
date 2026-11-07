@@ -1,0 +1,10 @@
+{
+  "name": "embedded-devcontainer-documentation-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node.js based tooling installed in the documentation image (diagram rendering for documentation builds).",
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "12.2.0",
+    "puppeteer": "25.16.0"
+  }
+}
