@@ -50,11 +50,16 @@ ADD --checksum=sha256:7815237aafeb42ddcc1b8c698fc5808026d33317d8701d5ec2396e9634
 ADD --checksum=sha256:e305df20c4c36cba4570e10f1cd824efb1ae71d88b5ef474550781ebee04192f \
  https://github.com/bats-core/bats-assert/archive/refs/tags/v${BATS_ASSERT_VERSION}.tar.gz /bats-assert.tar.gz
 
+COPY .devcontainer/base/package.json .devcontainer/base/package-lock.json /mermaid-cli/
+
+# npm is only needed to install the Node.js tools from the lock file here; the
+# final image gets the resulting node_modules and the Node.js runtime, not npm.
 # hadolint ignore=DL3008
 RUN --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends unzip \
+    apt-get update && apt-get install -y --no-install-recommends ca-certificates nodejs npm unzip \
+ && PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix /mermaid-cli --omit=dev --no-audit --no-fund \
  && tar xzf /bats-core.tar.gz && mv bats-core-*/ bats-core \
  && tar xzf /bats-support.tar.gz && mv bats-support-*/ bats-support \
  && tar xzf /bats-assert.tar.gz && mv bats-assert-*/ bats-assert \
@@ -75,8 +80,6 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
-    --mount=type=bind,source=.devcontainer/base/package.json,target=/tmp/package.json \
-    --mount=type=bind,source=.devcontainer/base/package-lock.json,target=/tmp/package-lock.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
@@ -102,13 +105,9 @@ RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tm
    # Install headless Chrome, used by puppeteer to render mermaid diagrams
    cp -a /src/chrome-headless-shell /opt/chrome-headless-shell
 
-   # Install some tools via npm, clean up afterwards
-   mkdir -p /opt/mermaid-cli
-   cp /tmp/package.json /tmp/package-lock.json /opt/mermaid-cli/
-   npm ci --prefix /opt/mermaid-cli --omit=dev --no-audit --no-fund
+   # Install the Node.js tools that were installed from the lock file in the extractor stage
+   cp -a /src/mermaid-cli /opt/mermaid-cli
    ln -s /opt/mermaid-cli/node_modules/.bin/mmdc /usr/local/bin/mmdc
-   npm cache clean --force
-   rm -rf /root/.npm
 
    # Generate locale
    sed -i '/C.UTF-8/s/^# //' /etc/locale.gen

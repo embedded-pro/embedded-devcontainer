@@ -27,7 +27,6 @@
   "lmodern": "2.005-1build1",
   "locales": "2.43-2ubuntu2.4",
   "nodejs": "22.22.1+dfsg+~cs22.19.15-1ubuntu1",
-  "npm": "9.2.0~ds3-1",
   "pandoc": "3.7.0.2+ds-1",
   "pdf2svg": "0.2.4-1build1",
   "python3-venv": "3.14.3-0ubuntu2",
