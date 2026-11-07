@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.5.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.4.0...v7.5.0) (2026-11-07)
+
+
+### Features
+
+* Bump conan from 2.33.0 to 2.34.0 in /.devcontainer ([#155](https://github.com/embedded-pro/embedded-devcontainer/issues/155)) ([ab125de](https://github.com/embedded-pro/embedded-devcontainer/commit/ab125de15dc72fceefe48748a751ff36a4550787))
+* Bump gcovr from 8.6 to 8.8 in /.devcontainer ([#156](https://github.com/embedded-pro/embedded-devcontainer/issues/156)) ([0e8087d](https://github.com/embedded-pro/embedded-devcontainer/commit/0e8087d6d530688606b11409092ecbc588e1cc21))
+
 ## [7.4.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.3.0...v7.4.0) (2026-11-07)
 
 
