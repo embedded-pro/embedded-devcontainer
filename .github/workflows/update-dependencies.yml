@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: ["base", "cpp", "rust"]
+        flavor: ["base", "cpp", "documentation", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
     container: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}:latest # zizmor: ignore[unpinned-images] intentionally tracks the freshest published image to detect apt/package updates
