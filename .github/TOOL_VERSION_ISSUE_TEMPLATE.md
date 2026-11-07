@@ -24,7 +24,6 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 - [ ] [bats-core](https://github.com/bats-core/bats-core)
 - [ ] [bats-support](https://github.com/bats-core/bats-support)
 - [ ] [bats-assert](https://github.com/bats-core/bats-assert)
-- [ ] [chrome-headless-shell](https://googlechromelabs.github.io/chrome-for-testing/) — *must match the version expected by puppeteer*
 
 ### ⚙️ embedded-devcontainer-cpp
 
@@ -34,6 +33,10 @@ It's time for our quarterly tool version check! This issue serves as a reminder 
 - [ ] [Mull](https://github.com/mull-project/mull) — *must be compatible with Clang*
 - [ ] [include-what-you-use](https://github.com/include-what-you-use/include-what-you-use) — *must be compatible with Clang*
 - [ ] [xwin](https://github.com/Jake-Shadle/xwin)
+
+### 📝 embedded-devcontainer-documentation
+
+- [ ] [chrome-headless-shell](https://googlechromelabs.github.io/chrome-for-testing/) — *must match the version expected by puppeteer*
 
 ### 🦀 embedded-devcontainer-rust
 

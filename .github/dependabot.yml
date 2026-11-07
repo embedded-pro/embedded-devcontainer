@@ -21,6 +21,7 @@ updates:
     directories:
       - .devcontainer/base
       - .devcontainer/cpp
+      - .devcontainer/documentation
       - .devcontainer/rust
     schedule:
       interval: monthly
@@ -43,12 +44,11 @@ updates:
           - patch
     commit-message:
       prefix: "test(deps)"
-  # Node.js tooling installed in the base image (mermaid-cli and the
-  # puppeteer-managed headless Chrome used for documentation builds).
+  # Node.js tooling installed in the documentation image (mermaid-cli and puppeteer).
   - package-ecosystem: npm
     cooldown:
       default-days: 7
-    directory: .devcontainer/base
+    directory: .devcontainer/documentation
     schedule:
       interval: monthly
   - package-ecosystem: pip

@@ -5,7 +5,7 @@ The containers try to be as "batteries included" as possible without being overl
 All containers are multi-platform and can be used on x64 (x86-64) and arm64 hardware on an operating system that supports an [OCI](https://opencontainers.org/) compatible container engine.
 This includes Windows, Linux, and macOS on both Intel and Apple silicon.
 
-The devcontainers include modern, up-to-date, tooling for C++ and Rust development, and are fully compatible with GitHub Codespaces and Visual Studio Code.
+The devcontainers include modern, up-to-date, tooling for C++ and Rust development (and a documentation flavor for building documentation), and are fully compatible with GitHub Codespaces and Visual Studio Code.
 The containers are versioned using [Semantic Versioning](https://semver.org/) and are designed with supply-chain security in mind.
 They can be used with [Dependabot](https://dependabot.com/) to keep dependencies up to date.
 
@@ -34,11 +34,12 @@ upstream sync must re-apply the deltas listed below.
 
 ### Image registry & names
 
-| Flavor | Upstream image                                   | This fork, CI (build & test)                      | This fork, published                                    |
-|--------|--------------------------------------------------|---------------------------------------------------|---------------------------------------------------------|
-| base   | `ghcr.io/philips-software/amp-devcontainer-base` | `ghcr.io/embedded-pro/embedded-devcontainer-base` | `docker.io/gabrielfrasantos/embedded-devcontainer-base` |
-| cpp    | `ghcr.io/philips-software/amp-devcontainer-cpp`  | `ghcr.io/embedded-pro/embedded-devcontainer-cpp`  | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`  |
-| rust   | `ghcr.io/philips-software/amp-devcontainer-rust` | `ghcr.io/embedded-pro/embedded-devcontainer-rust` | `docker.io/gabrielfrasantos/embedded-devcontainer-rust` |
+| Flavor        | Upstream image                                   | This fork, CI (build & test)                               | This fork, published                                             |
+|---------------|--------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------------|
+| base          | `ghcr.io/philips-software/amp-devcontainer-base` | `ghcr.io/embedded-pro/embedded-devcontainer-base`          | `docker.io/gabrielfrasantos/embedded-devcontainer-base`          |
+| cpp           | `ghcr.io/philips-software/amp-devcontainer-cpp`  | `ghcr.io/embedded-pro/embedded-devcontainer-cpp`           | `docker.io/gabrielfrasantos/embedded-devcontainer-cpp`           |
+| documentation | — (fork only)                                    | `ghcr.io/embedded-pro/embedded-devcontainer-documentation` | `docker.io/gabrielfrasantos/embedded-devcontainer-documentation` |
+| rust          | `ghcr.io/philips-software/amp-devcontainer-rust` | `ghcr.io/embedded-pro/embedded-devcontainer-rust`          | `docker.io/gabrielfrasantos/embedded-devcontainer-rust`          |
 
 All CI reads happen on ghcr.io. A single CI run reads the images dozens of
 times (multi-arch builds, manifest merge, SBOM, attestation verification,
@@ -72,7 +73,7 @@ are copied there byte-for-byte (same digest) by `wc-mirror-image.yml`.
   `.devcontainer/${{ matrix.flavor }}/Dockerfile`.
 - `update-dependencies.yml` runs in the published Docker Hub image at the `:latest` tag.
 - `image-cleanup.yml` / `pr-image-cleanup.yml` clean up the ghcr.io CI
-  packages (`embedded-devcontainer-base`, `-cpp`, `-rust`). Do not point them
+  packages (`embedded-devcontainer-base`, `-cpp`, `-documentation`, `-rust`). Do not point them
   at Docker Hub, that action does not support it.
 - `wc-build-push.yml` uses the **local** `./.github/actions/container-size-diff`
   rather than `philips-software/amp-devcontainer/.github/actions/...@<sha>`.
@@ -109,7 +110,8 @@ For CI to actually publish, the following must be set in this fork:
 - GitHub Actions must be allowed to create packages in the `embedded-pro`
   organization (the ghcr.io packages are created on the first CI run).
 - The Docker Hub repos `gabrielfrasantos/embedded-devcontainer-cpp`,
-  `gabrielfrasantos/embedded-devcontainer-base`, and
+  `gabrielfrasantos/embedded-devcontainer-base`,
+  `gabrielfrasantos/embedded-devcontainer-documentation`, and
   `gabrielfrasantos/embedded-devcontainer-rust` must exist.
 
 ### Upstream sync procedure (recap)
