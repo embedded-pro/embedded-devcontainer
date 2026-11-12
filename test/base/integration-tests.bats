@@ -31,3 +31,23 @@ setup() {
   assert_success
   assert_output --partial "libxslt"
 }
+
+@test "qt quick 3d and its helpers are available to qml" {
+  run find /usr/lib -path '*/qt6/qml/QtQuick3D/qmldir'
+  assert_success
+  assert_output --partial "QtQuick3D/qmldir"
+
+  run find /usr/lib -path '*/qt6/qml/QtQuick3D/Helpers/qmldir'
+  assert_success
+  assert_output --partial "Helpers/qmldir"
+}
+
+@test "qmllint is installed and runnable" {
+  run /usr/lib/qt6/bin/qmllint --version
+  assert_success
+}
+
+@test "a virtual display is available for gui tests" {
+  run xvfb-run -a true
+  assert_success
+}
