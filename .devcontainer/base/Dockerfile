@@ -4,14 +4,14 @@
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
-ARG XWIN_VERSION=0.8.0
+ARG XWIN_VERSION=0.10.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -19,7 +19,7 @@ FROM scratch AS downloader-arm64
 
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
