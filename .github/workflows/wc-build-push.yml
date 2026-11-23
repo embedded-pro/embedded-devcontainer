@@ -128,7 +128,10 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ steps.devcontainer-epoch.outputs.git-commit-epoch }}
         with:
-          build-args: ${{ inputs.build-args }}
+          build-args: |
+            UBUNTU_MIRROR=http://azure.archive.ubuntu.com/ubuntu/
+            UBUNTU_PORTS_MIRROR=http://ports.ubuntu.com/ubuntu-ports/
+            ${{ inputs.build-args }}
           file: ${{ inputs.dockerfile }}
           push: true
           tags: ${{ needs.sanitize-image-name.outputs.fully-qualified-image-name }}
