@@ -130,6 +130,7 @@ jobs:
         with:
           build-args: |
             UBUNTU_MIRROR=http://azure.archive.ubuntu.com/ubuntu/
+            UBUNTU_PORTS_MIRROR=http://ports.ubuntu.com/ubuntu-ports/
             ${{ inputs.build-args }}
           file: ${{ inputs.dockerfile }}
           push: true

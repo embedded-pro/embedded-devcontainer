@@ -6,14 +6,15 @@ ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
 ARG XWIN_VERSION=0.10.0
 
-# Build-only apt settings: CI mirror (amd64 only) and retries; the published image keeps the defaults.
+# Build-only apt settings: CI mirrors per architecture and retries; the published image keeps the defaults.
 FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 AS apt-sources
 
 ARG TARGETARCH
 ARG UBUNTU_MIRROR
+ARG UBUNTU_PORTS_MIRROR
 
 RUN mkdir /out \
- && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR=""; fi \
+ && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR="${UBUNTU_PORTS_MIRROR}"; fi \
  && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
  && printf 'Acquire::Retries "10";\nAcquire::Retries::Delay "true";\nAcquire::Retries::Delay::Maximum "60";\n' > /out/80-retries
 

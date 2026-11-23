@@ -4,14 +4,15 @@
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 ARG CHROME_HEADLESS_SHELL_VERSION=156.0.8078.47
 
-# Build-only apt settings: CI mirror (amd64 only) and retries; the published image keeps the defaults.
+# Build-only apt settings: CI mirrors per architecture and retries; the published image keeps the defaults.
 FROM ${BASE_IMAGE} AS apt-sources
 
 ARG TARGETARCH
 ARG UBUNTU_MIRROR
+ARG UBUNTU_PORTS_MIRROR
 
 RUN mkdir /out \
- && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR=""; fi \
+ && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR="${UBUNTU_PORTS_MIRROR}"; fi \
  && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
  && printf 'Acquire::Retries "10";\nAcquire::Retries::Delay "true";\nAcquire::Retries::Delay::Maximum "60";\n' > /out/80-retries
 
