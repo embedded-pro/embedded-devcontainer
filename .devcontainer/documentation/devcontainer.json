@@ -1,0 +1,36 @@
+{
+  "initializeCommand": "docker build -f .devcontainer/base/Dockerfile -t embedded-devcontainer-base:local .",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../..",
+    "args": {
+      "BASE_IMAGE": "embedded-devcontainer-base:local"
+    }
+  },
+  "remoteEnv": {
+    "CONTAINER_FLAVOR": "documentation"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      },
+      "extensions": [
+        "bierner.markdown-mermaid@1.32.1",
+        "davidanson.vscode-markdownlint@0.62.1",
+        "github.copilot@1.388.0",
+        "github.vscode-github-actions@0.32.3",
+        "github.vscode-pull-request-github@0.174.0",
+        "james-yu.latex-workshop@10.20.0",
+        "jetmartin.bats@0.1.10",
+        "kherring.bats-test-runner@0.1.3",
+        "mhutchie.git-graph@1.30.0",
+        "ms-azuretools.vscode-docker@2.0.0",
+        "sonarsource.sonarlint-vscode@6.2.0",
+        "usernamehw.errorlens@3.30.0",
+        "yzhang.markdown-all-in-one@3.6.3"
+      ]
+    }
+  }
+}

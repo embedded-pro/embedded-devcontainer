@@ -4,14 +4,26 @@
 ARG BATS_CORE_VERSION=1.13.0
 ARG BATS_SUPPORT_VERSION=0.3.0
 ARG BATS_ASSERT_VERSION=2.2.4
-ARG XWIN_VERSION=0.8.0
+ARG XWIN_VERSION=0.10.0
+
+# Build-only apt settings: CI mirrors per architecture and retries; the published image keeps the defaults.
+FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 AS apt-sources
+
+ARG TARGETARCH
+ARG UBUNTU_MIRROR
+ARG UBUNTU_PORTS_MIRROR
+
+RUN mkdir /out \
+ && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR="${UBUNTU_PORTS_MIRROR}"; fi \
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
+ && printf 'Acquire::Retries "10";\nAcquire::Retries::Delay "true";\nAcquire::Retries::Delay::Maximum "60";\n' > /out/80-retries
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -19,7 +31,7 @@ FROM scratch AS downloader-arm64
 
 ARG XWIN_VERSION
 
-ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
@@ -60,7 +72,9 @@ HEALTHCHECK NONE
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \

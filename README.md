@@ -33,7 +33,7 @@ This repository contains [devcontainers](https://docs.github.com/en/codespaces/s
 - **Batteries Included** 🔋: Pre-configured tools for local development and continuous integration.
 - **Developer Experience** 👩‍💻: Minimal set-up time and maximal shift-left.
 - **Multi-platform Support** ⚙️: Compatible with x64 and arm64 hardware on Windows, Linux, and macOS.
-- **Image Flavors** 🍨: Dedicated containers for C++ and Rust development.
+- **Image Flavors** 🍨: Dedicated containers for C++ and Rust development, and for building documentation.
 - **IDE Integration** 💻: Fully compatible with GitHub Codespaces and VS Code.
 - **Semantic Versioning** 🔢: Clear versioning strategy for container images.
 - **Secure** 🔒: Emphasis on supply-chain security and compatible with Dependabot.
@@ -56,6 +56,7 @@ The following devcontainers are published towards the [GitHub Container Registry
 
 - [embedded-devcontainer-base](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-base); shared base image used by the other flavors
 - [embedded-devcontainer-cpp](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-cpp); the C++ container
+- [embedded-devcontainer-documentation](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-documentation); the documentation container
 - [embedded-devcontainer-rust](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-rust); the Rust container
 
 All containers include a full [Visual Studio Code](https://code.visualstudio.com/) configuration that is compatible with [GitHub Codespaces](https://github.com/features/codespaces).
@@ -75,6 +76,12 @@ The embedded-devcontainer-cpp includes support for host- and cross-compilation u
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
+
+#### embedded-devcontainer-documentation
+
+The embedded-devcontainer-documentation built from this repository contains the tools to build documentation, like design booklets (PDF and static site), from Markdown sources.
+It consists of [Pandoc](https://pandoc.org/) with XeLaTeX (including TikZ and pgfplots), diagram rendering (using [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) and headless Chrome) and image conversion (pdf2svg, rsvg-convert).
+When running mermaid-cli as root, headless Chrome must be started without its sandbox by passing a puppeteer configuration containing `{ "args": ["--no-sandbox"] }` to `mmdc`.
 
 #### embedded-devcontainer-rust
 
