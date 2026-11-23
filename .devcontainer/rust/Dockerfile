@@ -1,6 +1,19 @@
 # syntax=docker/dockerfile:1
 
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
+
+# Build-only apt settings: CI mirrors per architecture and retries; the published image keeps the defaults.
+FROM ${BASE_IMAGE} AS apt-sources
+
+ARG TARGETARCH
+ARG UBUNTU_MIRROR
+ARG UBUNTU_PORTS_MIRROR
+
+RUN mkdir /out \
+ && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR="${UBUNTU_PORTS_MIRROR}"; fi \
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
+ && printf 'Acquire::Retries "10";\nAcquire::Retries::Delay "true";\nAcquire::Retries::Delay::Maximum "60";\n' > /out/80-retries
+
 FROM ${BASE_IMAGE}
 
 ARG CARGO_BINSTALL_VERSION=1.17.9
@@ -14,7 +27,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
