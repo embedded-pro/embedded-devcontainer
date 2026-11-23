@@ -32,6 +32,24 @@ get_github_releasenotes() {
     done
 }
 
+fetch_extension_versions() {
+    local NAME=${1:?}
+    local OUTPUT
+
+    # The Marketplace sometimes answers with a non-JSON body; retry before giving up.
+    for ATTEMPT in 1 2 3 4 5; do
+        if OUTPUT=$(vsce show --json "$NAME") && echo "$OUTPUT" | jq -e '.versions | type == "array"' > /dev/null 2>&1; then
+            echo "$OUTPUT"
+            return 0
+        fi
+        echo "::warning::Invalid Marketplace response for $NAME (attempt $ATTEMPT)" >&2
+        sleep $((ATTEMPT * 5))
+    done
+
+    echo "::error::No valid Marketplace response for $NAME" >&2
+    return 1
+}
+
 while IFS= read -r EXTENSION; do
     [[ -z "$EXTENSION" ]] && continue
 
@@ -39,7 +57,7 @@ while IFS= read -r EXTENSION; do
     CURRENT_VERSION="${EXTENSION#*@}"
 
     # Fetch all non-prerelease versions with their dates
-    ALL_VERSIONS_JSON=$(vsce show --json "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]')
+    ALL_VERSIONS_JSON=$(fetch_extension_versions "$NAME" | jq '[ .versions[] | select(.properties) | select(any(.properties[].key; contains("Microsoft.VisualStudio.Code.PreRelease")) | not) ]')
     LATEST_NON_PRERELEASE_VERSION_JSON=$(echo "$ALL_VERSIONS_JSON" | jq '.[0]')
     LATEST_NON_PRERELEASE_VERSION=$(echo "$LATEST_NON_PRERELEASE_VERSION_JSON" | jq -r '.version')
 
