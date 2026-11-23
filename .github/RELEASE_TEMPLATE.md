@@ -12,7 +12,6 @@
 |-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | embedded-devcontainer-base          | gabrielfrasantos/embedded-devcontainer-base:{{ embedded-devcontainer-base-version }}@{{ embedded-devcontainer-base-sha }}                            |
 | embedded-devcontainer-cpp           | gabrielfrasantos/embedded-devcontainer-cpp:{{ embedded-devcontainer-cpp-version }}@{{ embedded-devcontainer-cpp-sha }}                               |
-| embedded-devcontainer-winsdk        | gabrielfrasantos/embedded-devcontainer-winsdk:{{ embedded-devcontainer-winsdk-version }}@{{ embedded-devcontainer-winsdk-sha }}                      |
 | embedded-devcontainer-documentation | gabrielfrasantos/embedded-devcontainer-documentation:{{ embedded-devcontainer-documentation-version }}@{{ embedded-devcontainer-documentation-sha }} |
 | embedded-devcontainer-rust          | gabrielfrasantos/embedded-devcontainer-rust:{{ embedded-devcontainer-rust-version }}@{{ embedded-devcontainer-rust-sha }}                            |
 
