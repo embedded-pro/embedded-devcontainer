@@ -2,13 +2,14 @@
 
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 
-# CI points apt at a nearby mirror; the published image keeps the default sources.
+# Build-only apt settings: CI mirror and retries; the published image keeps the defaults.
 FROM ${BASE_IMAGE} AS apt-sources
 
 ARG UBUNTU_MIRROR
 
 RUN mkdir /out \
- && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
+ && printf 'Acquire::Retries "5";\n' > /out/80-retries
 
 FROM ${BASE_IMAGE}
 
@@ -24,6 +25,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
     --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \

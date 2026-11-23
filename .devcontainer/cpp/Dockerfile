@@ -9,13 +9,14 @@ ARG CCACHE_VERSION=4.13.1
 ARG MULL_VERSION=0.36.0
 ARG XWIN_VERSION=0.10.0
 
-# CI points apt at a nearby mirror; the published image keeps the default sources.
+# Build-only apt settings: CI mirror and retries; the published image keeps the defaults.
 FROM ${BASE_IMAGE} AS apt-sources
 
 ARG UBUNTU_MIRROR
 
 RUN mkdir /out \
- && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
+ && printf 'Acquire::Retries "5";\n' > /out/80-retries
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -74,6 +75,7 @@ WORKDIR /
 
 # hadolint ignore=DL3008
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
     --mount=from=downloader,target=/dl \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
@@ -124,6 +126,7 @@ ENV CCACHE_DIR=/cache/.ccache \
 
 # Install the base system with all tool dependencies
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
@@ -163,6 +166,7 @@ EOF
 # Install include-what-you-use (iwyu) from source
 # hadolint ignore=DL3008
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
     --mount=type=cache,target=/cache,sharing=locked \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
