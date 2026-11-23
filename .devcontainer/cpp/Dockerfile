@@ -130,6 +130,7 @@ ENV CCACHE_DIR=/cache/.ccache \
 # Install the base system with all tool dependencies
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
     --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=type=bind,source=.devcontainer/apt-install-pinned.sh,target=/tmp/apt-install-pinned.sh \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-base.json,target=/tmp/apt-requirements-base.json \
     --mount=type=bind,source=.devcontainer/cpp/apt-requirements-clang.json,target=/tmp/apt-requirements-clang.json \
     --mount=type=bind,source=.devcontainer/cpp/requirements.txt,target=/tmp/requirements.txt \
@@ -140,8 +141,7 @@ RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/ap
     --mount=from=extractor,target=/src <<EOF
 
     # Install the base system with all tool dependencies
-    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-base.json | \
-        xargs apt-get install -y --no-install-recommends
+    apt-get update && bash /tmp/apt-install-pinned.sh /tmp/apt-requirements-base.json
 
     # Install some tools via pip to get more recent versions, clean up afterwards
     python3 -m pip install --break-system-packages --require-hashes --no-cache-dir --no-compile -r /tmp/requirements.txt
@@ -158,8 +158,7 @@ RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/ap
     #UBUNTU_CODENAME=$(grep '^UBUNTU_CODENAME=' /etc/os-release | cut -d= -f2)
     #echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot-keyring.gpg] http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${CLANG_VERSION} main" | tee /etc/apt/sources.list.d/llvm-snapshot.list > /dev/null
     printf 'Package: *\nPin: origin "apt.llvm.org"\nPin-Priority: 1000\n' > /etc/apt/preferences
-    apt-get update && jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements-clang.json | \
-        xargs apt-get install -y --no-install-recommends
+    apt-get update && bash /tmp/apt-install-pinned.sh /tmp/apt-requirements-clang.json
     apt-get install -y --no-install-recommends /src/mull.deb /src/mull-clang.deb
 
     # Install arm-gcc toolchain

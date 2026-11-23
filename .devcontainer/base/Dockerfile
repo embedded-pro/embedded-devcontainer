@@ -74,6 +74,7 @@ SHELL ["/bin/bash", "-Eeuo", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
     --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=type=bind,source=.devcontainer/apt-install-pinned.sh,target=/tmp/apt-install-pinned.sh \
     --mount=type=bind,source=.devcontainer/base/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -82,8 +83,7 @@ RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/ap
 
    # Install the base system with all tool dependencies
    apt-get update && apt-get install -y --no-install-recommends jq
-   jq -r 'to_entries | .[] | .key + "=" + .value' /tmp/apt-requirements.json | \
-      xargs apt-get install -y --no-install-recommends
+   bash /tmp/apt-install-pinned.sh /tmp/apt-requirements.json
 
    # Include the Cisco Umbrella PKI Root Certificate
    cp /src/cisco-umbrella-root.crt /usr/local/share/ca-certificates/
