@@ -4,6 +4,14 @@
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 ARG CHROME_HEADLESS_SHELL_VERSION=156.0.8078.47
 
+# CI points apt at a nearby mirror; the published image keeps the default sources.
+FROM ${BASE_IMAGE} AS apt-sources
+
+ARG UBUNTU_MIRROR
+
+RUN mkdir /out \
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources
+
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
@@ -35,7 +43,8 @@ WORKDIR /
 # npm is only needed to install the Node.js tools from the lock file here; the
 # final image gets the resulting node_modules and the Node.js runtime, not npm.
 # hadolint ignore=DL3008
-RUN --mount=from=downloader,target=/dl \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=from=downloader,target=/dl \
     --mount=type=bind,source=.devcontainer/documentation/package.json,target=/tmp/package.json \
     --mount=type=bind,source=.devcontainer/documentation/package-lock.json,target=/tmp/package-lock.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -65,7 +74,8 @@ ENV PUPPETEER_EXECUTABLE_PATH=/opt/chrome-headless-shell/chrome-headless-shell \
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/documentation/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,source=.devcontainer/documentation/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \

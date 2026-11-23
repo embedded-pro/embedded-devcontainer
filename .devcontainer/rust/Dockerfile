@@ -1,6 +1,15 @@
 # syntax=docker/dockerfile:1
 
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
+
+# CI points apt at a nearby mirror; the published image keeps the default sources.
+FROM ${BASE_IMAGE} AS apt-sources
+
+ARG UBUNTU_MIRROR
+
+RUN mkdir /out \
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${UBUNTU_MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources
+
 FROM ${BASE_IMAGE}
 
 ARG CARGO_BINSTALL_VERSION=1.17.9
@@ -14,7 +23,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,source=.devcontainer/rust/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
