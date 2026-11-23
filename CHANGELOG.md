@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [7.5.1](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.5.0...v7.5.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **ci:** Retry invalid Marketplace responses in the extension updater ([#171](https://github.com/embedded-pro/embedded-devcontainer/issues/171)) ([2c7d906](https://github.com/embedded-pro/embedded-devcontainer/commit/2c7d9063aa988c711dec5d2530f18a25f8c949e2))
+* Fall back to the current version when an apt pin is superseded ([#169](https://github.com/embedded-pro/embedded-devcontainer/issues/169)) ([685d074](https://github.com/embedded-pro/embedded-devcontainer/commit/685d0745faa3b4359b4c22ffa0ac5980b4bd9077))
+* Make image builds reliable; update xwin to 0.10.0 in cpp ([#166](https://github.com/embedded-pro/embedded-devcontainer/issues/166)) ([95d0bcb](https://github.com/embedded-pro/embedded-devcontainer/commit/95d0bcbfd1c20f7b6d6fc992391c445a444bd018))
+
+
+### Chores
+
+* **deps:** Update VS Code extensions and actions/upload-artifact ([#168](https://github.com/embedded-pro/embedded-devcontainer/issues/168)) ([ef75cca](https://github.com/embedded-pro/embedded-devcontainer/commit/ef75ccad8c87297ec7da19bcc14b22f8c4dae75d))
+
 ## [7.5.0](https://github.com/embedded-pro/embedded-devcontainer/compare/v7.4.0...v7.5.0) (2026-11-12)
 
 
