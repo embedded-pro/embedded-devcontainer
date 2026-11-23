@@ -64,12 +64,56 @@ jobs:
       mirror-image-name: gabrielfrasantos/embedded-devcontainer-base
       mirror-registry: ${{ inputs.publish-to-docker-hub && 'docker.io' || '' }}
 
+  build-push-test-cpp:
+    name: 🍨 cpp
+    needs: build-push-test-base
+    uses: ./.github/workflows/wc-build-push-test.yml
+    secrets:
+      TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
+      TEST_GITHUB_USER: ${{ secrets.TEST_GITHUB_USER }}
+      TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
+      TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
+      MIRROR_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      MIRROR_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    permissions: *build-push-test-permissions
+    with:
+      build-args: |
+        BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
+      devcontainer-metadata-file: .devcontainer/cpp/devcontainer-metadata.json
+      dockerfile: .devcontainer/cpp/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
+      image-name: ${{ github.repository }}-cpp
+      integration-test-file: test/cpp/integration-tests.bats
+      integration-test-podman: true
+      mirror-image-name: gabrielfrasantos/embedded-devcontainer-cpp
+      mirror-registry: ${{ inputs.publish-to-docker-hub && 'docker.io' || '' }}
+
+  build-push-test-winsdk:
+    name: 🍨 winsdk
+    needs: build-push-test-cpp
+    uses: ./.github/workflows/wc-build-push-test.yml
+    secrets:
+      MIRROR_REGISTRY_USERNAME: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+      MIRROR_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+    permissions: *build-push-test-permissions
+    with:
+      build-args: |
+        BASE_IMAGE=${{ needs.build-push-test-cpp.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-cpp.outputs.digest }}
+      devcontainer-metadata-file: .devcontainer/winsdk/devcontainer-metadata.json
+      dockerfile: .devcontainer/winsdk/Dockerfile
+      enable-edge-tag: ${{ github.event_name == 'merge_group' }}
+      image-name: ${{ github.repository }}-winsdk
+      integration-test-file: test/winsdk/integration-tests.bats
+      integration-test-podman: true
+      mirror-image-name: gabrielfrasantos/embedded-devcontainer-winsdk
+      mirror-registry: ${{ inputs.publish-to-docker-hub && 'docker.io' || '' }}
+
   build-push-test-flavors:
     name: 🍨 ${{ matrix.flavor }}
     needs: build-push-test-base
     strategy:
       matrix:
-        flavor: [cpp, documentation, rust]
+        flavor: [documentation, rust]
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}

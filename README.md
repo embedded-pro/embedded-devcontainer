@@ -56,6 +56,7 @@ The following devcontainers are published towards the [GitHub Container Registry
 
 - [embedded-devcontainer-base](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-base); shared base image used by the other flavors
 - [embedded-devcontainer-cpp](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-cpp); the C++ container
+- [embedded-devcontainer-winsdk](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-winsdk); the C++ container with the Windows SDK and CRT for clang-cl
 - [embedded-devcontainer-documentation](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-documentation); the documentation container
 - [embedded-devcontainer-rust](https://hub.docker.com/r/gabrielfrasantos/embedded-devcontainer-rust); the Rust container
 
@@ -76,6 +77,12 @@ The embedded-devcontainer-cpp includes support for host- and cross-compilation u
 Next to the compilers there is support for package management (using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) and [Conan](https://conan.io/)) code-coverage measurement, mutation testing (using [mull](https://github.com/mull-project/mull)), fuzzing (using [libfuzzer](https://www.llvm.org/docs/LibFuzzer.html)) and static analysis and formatting (clang-format, clang-tidy, clangd, include-what-you-use).
 
 The default build system is set up to use CMake, Ninja and CCache.
+
+#### embedded-devcontainer-winsdk
+
+The embedded-devcontainer-winsdk is the embedded-devcontainer-cpp with the Windows SDK and MSVC CRT in `/winsdk`, splatted by [xwin](https://github.com/Jake-Shadle/xwin).
+Use it to cross-compile for Windows with clang-cl (`/winsdkdir /winsdk/sdk /vctoolsdir /winsdk/crt`) without downloading the SDK in each CI run.
+It is a separate image because the SDK adds about 1–2 GB.
 
 #### embedded-devcontainer-documentation
 

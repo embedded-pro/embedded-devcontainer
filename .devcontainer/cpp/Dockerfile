@@ -7,7 +7,7 @@ ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 ARG CCACHE_MINISIGN_PUBKEY=RWQX7yXbBedVfI4PNx6FLdFXu9GHUFsr28s4BVGxm4BeybtnX3P06saF
 ARG CCACHE_VERSION=4.13.1
 ARG MULL_VERSION=0.36.0
-ARG XWIN_VERSION=0.8.0
+ARG XWIN_VERSION=0.10.0
 
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
@@ -24,7 +24,7 @@ ADD --checksum=sha256:e142168a8b95476df66930f94d47dfcce935815bdb9ccb04c3c7cf3472
  https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-${MULL_VERSION}-ubuntu-amd64-26.04.deb /mull.deb
 ADD --checksum=sha256:2f64f286bbc2963c1694f2f93d8984cc2133ee7d2b449e7ea1ed830c8fd05fd7 \
  https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-20-${MULL_VERSION}-LLVM-20.1.8-ubuntu-amd64-26.04.deb /mull-clang.deb
-ADD --checksum=sha256:8a354e12475dd154d0a2d3084eefd2c105f872ec8062965baaa7e9f2f76fe611 \
+ADD --checksum=sha256:d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Downloader stage for ARM64 architecture
@@ -42,7 +42,7 @@ ADD --checksum=sha256:f1595c9354510e75d7768ce22d850aa8a352abfa3e32ea29eb9ffa23df
  https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-${MULL_VERSION}-ubuntu-aarch64-26.04.deb /mull.deb
 ADD --checksum=sha256:73fa56e89aea0ca9d57a3131b6bc6f93a6d645acfa32e1d9a1c24d1a977cb4e5 \
  https://github.com/mull-project/mull/releases/download/${MULL_VERSION}/Mull-20-${MULL_VERSION}-LLVM-20.1.8-ubuntu-aarch64-26.04.deb /mull-clang.deb
-ADD --checksum=sha256:fe106caefbb316664d73fd03166c28c09e580bb2a3ad65b4d50c51c67368aeab \
+ADD --checksum=sha256:6d56d28537a86f37aa3d041318898f25ee3100c6b6ec332ad873c28faf37be23 \
  https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-aarch64-unknown-linux-musl.tar.gz /xwin.tar.gz
 
 # Select downloader stage based on target architecture.
