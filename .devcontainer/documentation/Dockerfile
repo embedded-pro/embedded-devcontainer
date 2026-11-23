@@ -4,6 +4,18 @@
 ARG BASE_IMAGE=gabrielfrasantos/embedded-devcontainer-base:edge
 ARG CHROME_HEADLESS_SHELL_VERSION=156.0.8078.47
 
+# Build-only apt settings: CI mirrors per architecture and retries; the published image keeps the defaults.
+FROM ${BASE_IMAGE} AS apt-sources
+
+ARG TARGETARCH
+ARG UBUNTU_MIRROR
+ARG UBUNTU_PORTS_MIRROR
+
+RUN mkdir /out \
+ && if [ "${TARGETARCH}" = amd64 ]; then MIRROR="${UBUNTU_MIRROR}"; else MIRROR="${UBUNTU_PORTS_MIRROR}"; fi \
+ && sed -E "s#http://(archive|security)\.ubuntu\.com/ubuntu/?#${MIRROR:-&}#g" /etc/apt/sources.list.d/ubuntu.sources > /out/ubuntu.sources \
+ && printf 'Acquire::Retries "10";\nAcquire::Retries::Delay "true";\nAcquire::Retries::Delay::Maximum "60";\n' > /out/80-retries
+
 # Downloader stage for AMD64 architecture
 FROM scratch AS downloader-amd64
 
@@ -35,7 +47,9 @@ WORKDIR /
 # npm is only needed to install the Node.js tools from the lock file here; the
 # final image gets the resulting node_modules and the Node.js runtime, not npm.
 # hadolint ignore=DL3008
-RUN --mount=from=downloader,target=/dl \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=from=downloader,target=/dl \
     --mount=type=bind,source=.devcontainer/documentation/package.json,target=/tmp/package.json \
     --mount=type=bind,source=.devcontainer/documentation/package-lock.json,target=/tmp/package-lock.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -65,7 +79,9 @@ ENV PUPPETEER_EXECUTABLE_PATH=/opt/chrome-headless-shell/chrome-headless-shell \
 
 # Install the base system with all tool dependencies
 # hadolint ignore=DL3008
-RUN --mount=type=bind,source=.devcontainer/documentation/apt-requirements.json,target=/tmp/apt-requirements.json \
+RUN --mount=type=bind,from=apt-sources,source=/out/ubuntu.sources,target=/etc/apt/sources.list.d/ubuntu.sources \
+    --mount=type=bind,from=apt-sources,source=/out/80-retries,target=/etc/apt/apt.conf.d/80-retries \
+    --mount=type=bind,source=.devcontainer/documentation/apt-requirements.json,target=/tmp/apt-requirements.json \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/var/log,sharing=locked \
