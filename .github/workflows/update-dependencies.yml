@@ -10,8 +10,44 @@ on:
 permissions: {}
 
 jobs:
+  # On pull requests, the jobs below only test the update actions. Those tests are
+  # required status checks, so the jobs always run (and report under their
+  # expanded names), but they skip all work unless the action they test changed.
+  changes:
+    name: 🔎 Changed Update Actions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      apt: ${{ steps.changes.outputs.apt }}
+      extensions: ${{ steps.changes.outputs.extensions }}
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: changes
+        run: |
+          if [[ "${EVENT_NAME}" != "pull_request" ]]; then
+            printf 'apt=true\nextensions=true\n' | tee -a "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          CHANGED_FILES=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")
+          changed() { grep -qE "$1" <<< "${CHANGED_FILES}" && echo true || echo false; }
+          echo "apt=$(changed '^\.github/(actions/update-apt-packages/|workflows/update-dependencies\.yml$)')" | tee -a "${GITHUB_OUTPUT}"
+          echo "extensions=$(changed '^\.github/(actions/update-vscode-extensions/|workflows/update-dependencies\.yml$)')" | tee -a "${GITHUB_OUTPUT}"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
   update-apt-dependencies:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} OS (🍨 ${{ matrix.flavor }})
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,7 +55,8 @@ jobs:
         flavor: ["base", "cpp", "documentation", "rust"]
     # Using our own container is required since we need all package sources
     # set-up correctly.
-    container: gabrielfrasantos/embedded-devcontainer-${{ matrix.flavor }}:latest # zizmor: ignore[unpinned-images] intentionally tracks the freshest published image to detect apt/package updates
+    # The container is only pulled when the job has work to do.
+    container: ${{ needs.changes.outputs.apt == 'true' && format('gabrielfrasantos/embedded-devcontainer-{0}:latest', matrix.flavor) || '' }} # zizmor: ignore[unpinned-images] intentionally tracks the freshest published image to detect apt/package updates
     permissions:
       contents: write # is needed by peter-evans/create-pull-request to create branches and push commits
       pull-requests: write # is needed by peter-evans/create-pull-request to create a PR
@@ -28,15 +65,18 @@ jobs:
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: needs.changes.outputs.apt == 'true'
         with:
           persist-credentials: false
       # Mull is no longer installed from its Cloudsmith apt repository (bandwidth exhausted, HTTP 402),
       # but images published before that change still contain the source. Remove it so apt-get update succeeds;
       # this step can be dropped once the published images no longer contain the source.
       - name: Remove discontinued apt sources
+        if: needs.changes.outputs.apt == 'true'
         run: rm -f /etc/apt/sources.list.d/mull-project-mull-stable.list
       - uses: ./.github/actions/update-apt-packages
         id: update-packages
+        if: needs.changes.outputs.apt == 'true'
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/apt-requirements*.json
       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
@@ -59,6 +99,7 @@ jobs:
 
   update-vscode-extensions:
     name: ${{ github.event_name == 'pull_request' && '🧪' || '' }} Extensions (🍨 ${{ matrix.flavor }}, ${{ matrix.file }})
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -73,13 +114,16 @@ jobs:
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: needs.changes.outputs.extensions == 'true'
         with:
           persist-credentials: false
       - uses: ./.github/actions/update-vscode-extensions
         id: update-extensions
+        if: needs.changes.outputs.extensions == 'true'
         with:
           input-file: .devcontainer/${{ matrix.flavor }}/${{ matrix.file }}
       - name: Generate PR body
+        if: needs.changes.outputs.extensions == 'true'
         run: |
           {
             echo "> [!NOTE]"

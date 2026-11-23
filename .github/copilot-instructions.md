@@ -59,6 +59,18 @@ are copied there byte-for-byte (same digest) by `wc-mirror-image.yml`.
   make the build and test jobs log in to ghcr.io with Docker Hub credentials.
 - `continuous-integration.yml` sets `publish-to-docker-hub` for `merge_group`
   (edge tag) only; `release-build.yml` always sets it (semver tags + latest).
+- On pull requests, `continuous-integration.yml` only builds the images the PR
+  changes (`.github/scripts/changed-images.sh`, passed to the `build-base` /
+  `flavors` inputs of `build-push-test.yml`). Base or shared build changes
+  rebuild everything; a flavor-only change builds that flavor on top of
+  `ghcr.io/<repo>-base:latest`; `.devcontainer/*/devcontainer.json` changes
+  build nothing. Merge queue, release and manual runs build everything.
+- On pull requests, the `update-dependencies.yml` jobs only self-test the
+  update actions. They are required status checks, so they always run (and
+  report under their expanded matrix names), but skip all work and the
+  container pull unless `.github/actions/update-*` or the workflow changed.
+  Do not gate them with a job-level `if:`: skipped matrix jobs report under
+  the unexpanded name and would block every PR.
 - `wc-build-push-test.yml` has the extra `mirror-registry` /
   `mirror-image-name` inputs, the `MIRROR_REGISTRY_*` secrets and a
   `mirror-image` job that calls the fork-only `wc-mirror-image.yml` after
