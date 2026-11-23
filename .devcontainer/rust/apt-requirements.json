@@ -1,4 +1,6 @@
 {
   "g++-15": "15.2.0-16ubuntu1",
+  "libudev-dev": "259.9-0ubuntu0.1",
+  "pkg-config": "2.5.1-4",
   "rustup": "1.27.1-8"
 }
