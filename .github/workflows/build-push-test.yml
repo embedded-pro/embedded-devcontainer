@@ -16,6 +16,18 @@ name: Build, Push & Test
 on:
   workflow_call:
     inputs:
+      build-base:
+        description: >-
+          Build and test the base image. When false, the flavors are built on top of
+          the latest released base image instead.
+        required: false
+        type: boolean
+        default: true
+      flavors:
+        description: JSON array of the flavors to build and test.
+        required: false
+        type: string
+        default: '["cpp", "documentation", "rust"]'
       publish-to-docker-hub:
         description: Copy the tested images, with all their tags, to Docker Hub.
         required: false
@@ -40,6 +52,7 @@ permissions: {}
 jobs:
   build-push-test-base:
     name: 🍨 base
+    if: ${{ inputs.build-base }}
     uses: ./.github/workflows/wc-build-push-test.yml
     # The Docker Hub credentials are only forwarded as mirror credentials.
     # Forwarding them as DOCKER_REGISTRY_* would make the build and test
@@ -67,9 +80,11 @@ jobs:
   build-push-test-flavors:
     name: 🍨 ${{ matrix.flavor }}
     needs: build-push-test-base
+    # Also run when the base image was not built (build-base: false); the flavors then use the latest released base image.
+    if: ${{ !cancelled() && inputs.flavors != '[]' && (needs.build-push-test-base.result == 'success' || needs.build-push-test-base.result == 'skipped') }}
     strategy:
       matrix:
-        flavor: [cpp, documentation, rust]
+        flavor: ${{ fromJson(inputs.flavors) }}
     uses: ./.github/workflows/wc-build-push-test.yml
     secrets:
       TEST_GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
@@ -85,7 +100,7 @@ jobs:
       # which we do not use. See .github/copilot-instructions.md ("Acceptance
       # tests / Codespaces") for the rationale.
       build-args: |
-        BASE_IMAGE=${{ needs.build-push-test-base.outputs.fully-qualified-image-name }}@${{ needs.build-push-test-base.outputs.digest }}
+        BASE_IMAGE=${{ needs.build-push-test-base.result == 'success' && format('{0}@{1}', needs.build-push-test-base.outputs.fully-qualified-image-name, needs.build-push-test-base.outputs.digest) || format('ghcr.io/{0}-base:latest', github.repository) }}
       devcontainer-metadata-file: .devcontainer/${{ matrix.flavor }}/devcontainer-metadata.json
       dockerfile: .devcontainer/${{ matrix.flavor }}/Dockerfile
       enable-edge-tag: ${{ github.event_name == 'merge_group' }}

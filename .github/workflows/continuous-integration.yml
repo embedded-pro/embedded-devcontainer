@@ -13,17 +13,51 @@ concurrency:
 permissions: {}
 
 jobs:
+  changes:
+    name: 🔎 Changed Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      build-base: ${{ steps.changes.outputs.build-base }}
+      flavors: ${{ steps.changes.outputs.flavors }}
+    steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Pull requests only build and test the images they change; the merge queue
+      # and manual runs build everything.
+      - id: changes
+        run: |
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            .github/scripts/changed-images.sh "${BASE_SHA}" "${HEAD_SHA}"
+          else
+            .github/scripts/changed-images.sh
+          fi | tee -a "${GITHUB_OUTPUT}"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
   build-push-test:
     name: Build → Push → Test
+    needs: changes
     # For Dependabot PRs that update something that ends up in the images (Docker base
     # images, devcontainer features, Python packages installed in the containers), run
     # the full build/push/test pipeline. For all other Dependabot ecosystems (npm,
     # GitHub Actions) skip it to avoid needlessly rebuilding images that haven't changed.
+    # Pull requests that change no image (e.g. only a devcontainer.json) skip it as well.
     if: |
-      github.actor != 'dependabot[bot]' ||
+      (needs.changes.outputs.build-base == 'true' || needs.changes.outputs.flavors != '[]') &&
+      (github.actor != 'dependabot[bot]' ||
       startsWith(github.head_ref, 'dependabot/docker/') ||
       startsWith(github.head_ref, 'dependabot/devcontainers/') ||
-      startsWith(github.head_ref, 'dependabot/pip/dot-devcontainer/')
+      startsWith(github.head_ref, 'dependabot/pip/dot-devcontainer/'))
     uses: ./.github/workflows/build-push-test.yml
     permissions:
       actions: read # is needed by anchore/sbom-action to find workflow artifacts when attaching release assets
@@ -41,6 +75,8 @@ jobs:
       TEST_GITHUB_PASSWORD: ${{ secrets.TEST_GITHUB_PASSWORD }}
       TEST_GITHUB_TOTP_SECRET: ${{ secrets.TEST_GITHUB_TOTP_SECRET }}
     with:
+      build-base: ${{ needs.changes.outputs.build-base == 'true' }}
+      flavors: ${{ needs.changes.outputs.flavors }}
       # Pull requests only use ghcr.io; the edge images built by the merge queue
       # are also published to Docker Hub.
       publish-to-docker-hub: ${{ github.event_name == 'merge_group' }}
